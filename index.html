@@ -1,0 +1,1061 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>OFFLINE GDZ</title>
+<style>
+/* Layout: dark mobile app, 4-tab bottom nav, AI chat tab with composer pinned above the nav.
+   Single committed dark look (own palette), so no light-mode blocks. */
+:root{--bg:#08090d;--panel:#13151c;--panel2:#171923;--line:#2b2e3a;--muted:#9298aa;--fg:#f5f6fb;--violet:#a78bfa;--cyan:#48d9ed;--lime:#b6f36b;--amber:#fbbf24;--navh:64px;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 5% 0%,#6d28d930,transparent 36%),radial-gradient(ellipse at 100% 60%,#0e749018,transparent 34%)}
+.app{position:relative;max-width:520px;min-height:100vh;margin:auto;padding-block:0 120px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top{display:flex;justify-content:space-between;align-items:center;padding:18px 0 22px}
+.brand{display:flex;align-items:center;gap:10px;font-size:12px;letter-spacing:1.7px;font-weight:900}
+.logo{display:grid;place-items:center;width:36px;height:36px;border-radius:13px;background:linear-gradient(135deg,#b9a3ff,#6d28d9 58%,#48d9ed);box-shadow:0 0 25px #8b5cf644;font-size:18px}
+.pill{font-size:10px;color:#a8f2bd;border:1px solid #274733;background:#112019;border-radius:30px;padding:8px 10px}
+.view{display:none;animation:up .3s ease both}.view.active{display:block}
+.eyebrow{font-size:10px;font-weight:800;letter-spacing:2px;color:#b8a4ff;margin:5px 0 12px}
+h1{font-size:39px;line-height:1.04;letter-spacing:-1.7px;margin:0 0 12px;text-wrap:balance}
+h1 span{background:linear-gradient(90deg,#c4b5fd,#48d9ed);color:transparent;background-clip:text;-webkit-background-clip:text}
+h2{text-wrap:balance}
+.muted{color:var(--muted);font-size:13px;line-height:1.55}
+.search{display:flex;gap:10px;align-items:center;margin:20px 0 18px;padding:15px;border:1px solid #303341;background:#12141b;border-radius:16px;transition:.2s}
+.search:focus-within{border-color:#a78bfa;box-shadow:0 0 0 3px #a78bfa18}
+.search input{background:none;border:0;outline:0;color:#fff;min-width:0;flex:1;font-size:13px}
+.heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.heading h2{font-size:18px;margin:0}
+.tiny{font-size:11px;color:#858b9d}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.subject{--a:#a78bfa;position:relative;overflow:hidden;text-align:left;background:linear-gradient(145deg,#191b25,#101117);border:1px solid #292c38;border-radius:19px;padding:15px;min-height:137px;color:#fff;cursor:pointer;transition:transform .22s,border-color .22s,box-shadow .22s;font:inherit}
+.subject:before{content:"";position:absolute;right:-32px;top:-42px;width:100px;height:100px;border-radius:50%;background:var(--a);filter:blur(42px);opacity:.22;transition:.25s}
+.subject:active{transform:scale(.96)}.subject:hover{transform:translateY(-3px);border-color:var(--a);box-shadow:0 9px 28px #0005}
+.ico{position:relative;width:43px;height:43px;border-radius:14px;display:grid;place-items:center;margin-bottom:16px;background:color-mix(in srgb,var(--a),transparent 88%);border:1px solid color-mix(in srgb,var(--a),transparent 72%);color:var(--a);font-size:20px;font-weight:800}
+.name{position:relative;display:block;font-weight:750;font-size:14px;margin-bottom:5px}
+.desc{position:relative;font-size:11px;color:#9298aa}
+.arr{position:absolute;right:14px;bottom:13px;color:#777d90}
+.aicard{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:15px;margin:0 0 24px;border:1px solid #3a3160;border-radius:18px;background:linear-gradient(110deg,#231a3d,#102029);color:#fff;cursor:pointer;font:inherit}
+.aicard:active{transform:scale(.985)}
+.aiico{flex-shrink:0;width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(135deg,#8b5cf6,#36cfe0);font-size:20px}
+.aicard strong{font-size:14px;display:block;margin-bottom:3px}.aicard span.s{font-size:11px;color:#b3b8c8;line-height:1.4;display:block}
+.feature{display:flex;align-items:center;gap:13px;padding:16px;border:1px solid #292c38;border-radius:18px;background:linear-gradient(110deg,#171321,#10151b);margin-top:24px}
+.featureicon{flex-shrink:0;width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:#b6f36b15;border:1px solid #b6f36b30;color:var(--lime);font-size:20px}
+.feature strong{font-size:13px}.feature p{font-size:11px;color:var(--muted);margin:5px 0 0;line-height:1.4}
+.back{background:var(--panel2);border:1px solid #2c2f3c;color:#ddd;border-radius:12px;padding:10px 13px;font-size:12px;margin:0 0 22px;cursor:pointer;font-family:inherit}
+.detailhead{display:flex;gap:13px;align-items:center;margin-bottom:22px}.detailhead .ico{width:55px;height:55px;margin:0;font-size:25px}.detailhead h2{font-size:25px;letter-spacing:-.7px;margin:0 0 4px}
+.label{font-size:10px;letter-spacing:1.3px;color:#a3a8b7;font-weight:800;margin:22px 0 10px;text-transform:uppercase}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{padding:10px 12px;border-radius:11px;background:#14161e;border:1px solid #2c2f3c;color:#aeb3c1;font-size:12px;cursor:pointer;font-family:inherit}
+.chip.ok{border-color:#b6f36b;color:#b6f36b;background:#b6f36b10}
+.books{display:grid;gap:10px}
+.book{display:flex;align-items:center;gap:12px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:13px;color:#fff;cursor:pointer;transition:.2s;font:inherit}
+.book:active{transform:scale(.985)}.book:hover,.book.sel{border-color:#9b80ff}.book.sel{background:#211b32}
+.bookico{width:43px;height:49px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(145deg,#31224e,#18232d);color:#c5b5ff;font-weight:850;font-size:17px;flex-shrink:0}
+.book strong{font-size:12px;line-height:1.45;display:block}
+.book small{display:block;color:#9298aa;font-size:10px;line-height:1.5;margin-top:4px}
+.book .arrow{margin-left:auto;color:#777d90}
+.field{width:100%;border:1px solid var(--line);background:#11131a;color:#fff;padding:14px;border-radius:13px;outline:0;font-size:14px;font-family:inherit}
+.field:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid #a78bfa;outline-offset:2px}
+textarea.field{min-height:150px;resize:vertical;font:12px ui-monospace,Menlo,Consolas,monospace}
+.primary{width:100%;border:0;border-radius:14px;background:linear-gradient(100deg,#8b5cf6,#6865fc 60%,#36cfe0);color:#fff;padding:16px;font-weight:800;font-size:14px;margin-top:17px;cursor:pointer;box-shadow:0 8px 25px #6d5dfc28;font-family:inherit}
+.ghost{border:1px solid #343744;background:#14161e;color:#ddd;border-radius:12px;padding:12px 14px;font-size:12px;cursor:pointer;flex:1;font-family:inherit}
+.ghost.ai{border-color:#4b3f86;background:#1d1733;color:#d8ccff}
+.row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.result{margin-top:17px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:17px}
+.eq{font-size:21px;font-weight:850;margin:18px 0;line-height:1.35}
+.step{border-top:1px solid #292c38;padding:12px 0;font-size:13px;line-height:1.5;display:flex;gap:10px}
+.n{background:#8b5cf626;color:#c6b8ff;border-radius:8px;width:25px;height:25px;display:grid;place-items:center;flex-shrink:0;font-size:11px}
+.badge{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;border-radius:8px;padding:5px 8px;margin-bottom:10px}
+.badge.ok{background:#b6f36b18;color:#b6f36b;border:1px solid #b6f36b40}
+.badge.draft{background:#fbbf2418;color:#fbbf24;border:1px solid #fbbf2440}
+.bar{height:6px;border-radius:6px;background:#242733;margin-top:8px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#8b5cf6,#48d9ed)}
+.empty{padding:28px 17px;border:1px dashed #343744;border-radius:17px;color:var(--muted);text-align:center;font-size:13px;line-height:1.6;margin-top:20px}
+
+/* Контрольная */
+.exg{flex-shrink:0;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-weight:900;font-size:18px}
+.g5{background:#b6f36b22;color:#b6f36b;border:1px solid #b6f36b55}
+.g4{background:#48d9ed22;color:#48d9ed;border:1px solid #48d9ed55}
+.g3{background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2455}
+.g2{background:#f8717122;color:#f87171;border:1px solid #f8717155}
+.exgrade{width:76px;height:76px;border-radius:22px;font-size:40px;flex-shrink:0}
+.extimer{font-variant-numeric:tabular-nums;font-weight:800;color:#fbbf24}
+.extimer.low{color:#f87171}
+.exopts{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.exopts.one{grid-template-columns:1fr}
+.exopt{min-height:54px;padding:12px;border-radius:14px;border:1px solid #4b3f86;background:#1d1733;color:#e6defe;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;line-height:1.3}
+.exopt:active{transform:scale(.97)}
+.exres{display:flex;gap:16px;align-items:center}
+.exwrong{padding:12px 0;border-top:1px solid #292c38}
+.exwrong .hwt{font-size:14px}
+/* Инструменты: дневник ДЗ и калькулятор оценок */
+.toolcard{--a:#a78bfa;text-align:left;background:linear-gradient(145deg,#191b25,#101117);border:1px solid #292c38;border-radius:19px;padding:15px;color:#fff;cursor:pointer;font:inherit;transition:transform .22s,border-color .22s}
+.toolcard:hover{border-color:var(--a);transform:translateY(-2px)}.toolcard:active{transform:scale(.96)}
+.toolcard .ico{margin-bottom:12px}.toolcard .name{display:block;font-weight:750;font-size:14px;margin-bottom:4px}.toolcard .desc{font-size:11px;color:#9298aa}
+.hwform{display:grid;gap:8px;margin-top:16px}
+.hwform .primary{margin-top:0}
+.hwlist{display:grid;gap:8px}
+.hwgroup{margin-top:18px}
+.hwgl{font-size:10px;letter-spacing:1.3px;font-weight:800;text-transform:uppercase;margin:0 0 8px;color:#a3a8b7}
+.hwgl.over{color:#f87171}
+.hwitem{display:flex;gap:11px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:11px 12px}
+.hwitem.over{border-color:#f8717166}
+.hwck{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:2px solid #5b5f73;background:none;cursor:pointer;padding:0;color:#08090d;font-size:14px;font-weight:900;line-height:1;display:grid;place-items:center}
+.hwitem.done .hwck{background:var(--lime);border-color:var(--lime)}
+.hwitem.done .hwck:after{content:"✓"}
+.hwitem.done .hwt{text-decoration:line-through;color:var(--muted)}
+.hwmain{flex:1;min-width:0}
+.hwt{font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+.hws{font-size:11px;color:#858b9d;margin-top:3px}
+.hwdel{flex-shrink:0;background:none;border:0;color:#777d90;font-size:22px;cursor:pointer;padding:4px 6px;font-family:inherit}
+.gopts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.gline{font-size:14px;line-height:1.6;margin:0 0 8px}
+.gbig{font-size:38px;font-weight:900;letter-spacing:-1px;margin:2px 0 4px}
+details.hwdone{margin-top:20px}
+details.hwdone summary{cursor:pointer;font-size:12px;color:var(--muted);padding:6px 0}
+/* Фото задания */
+.composer{flex-wrap:wrap}
+.attprev{flex:0 0 100%;display:flex;align-items:center;gap:10px;font-size:12px;color:#c9cddb}
+.attprev img{height:48px;width:48px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.attbtn{flex-shrink:0;width:44px;height:44px;border-radius:50%;border:1px solid #4b3f86;background:#1d1733;color:#d8ccff;display:grid;place-items:center;cursor:pointer;padding:0}
+.attbtn[hidden]{display:none}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+/* Тренажёр */
+.trhead{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin:16px 0 8px}
+.trq{font-size:22px;font-weight:800;line-height:1.4;margin:6px 0 16px;overflow-wrap:anywhere}
+.tropts{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.tropt{padding:16px;border-radius:14px;border:1px solid #4b3f86;background:#1d1733;color:#e6defe;font-size:17px;font-weight:800;cursor:pointer;font-family:inherit}
+.tropt:active{transform:scale(.97)}
+.badge.bad{background:#f8717118;color:#f87171;border:1px solid #f8717140}
+.trscore{font-size:46px;font-weight:900;letter-spacing:-1.5px;margin:4px 0 6px}
+.trnote{font-size:13px;line-height:1.55;color:#c9cddb;margin:8px 0 0}
+/* Другие нейросети */
+.others{margin:12px 0 0;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.olabel{display:block;font-size:10px;letter-spacing:1.3px;font-weight:800;color:#a3a8b7;text-transform:uppercase;margin-bottom:9px}
+.orow{display:flex;gap:7px;flex-wrap:wrap}
+.otherai{flex:1;min-width:90px;text-align:center;text-decoration:none;color:#d8ccff;border:1px solid #4b3f86;background:#1d1733;border-radius:11px;padding:11px 10px;font-size:13px;font-weight:700}
+.ohint{display:block;font-size:11px;color:#858b9d;line-height:1.45;margin-top:9px}
+/* Правила и формулы */
+.rschips{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0 6px}
+.rschip{padding:10px 13px;border-radius:11px;background:#14161e;border:1px solid #2c2f3c;color:#aeb3c1;font-size:12px;cursor:pointer;font-family:inherit}
+.rschip.sel{background:#8b5cf625;border-color:#9b80ff;color:#fff}
+.rules{display:grid;gap:9px;margin-top:12px}
+.rule{background:var(--panel);border:1px solid var(--line);border-radius:15px;overflow:hidden}
+.rule summary{cursor:pointer;padding:14px;font-size:14px;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.rule summary::-webkit-details-marker{display:none}
+.rule summary:after{content:"+";color:#9b80ff;font-size:18px;flex-shrink:0}
+.rule[open] summary:after{content:"–"}
+.rule[open]{border-color:#4b3f86}
+.rb{padding:0 14px 14px;font-size:13.5px;line-height:1.6;overflow-wrap:anywhere}
+.rb p{margin:0 0 8px}
+.rb .ex{margin-top:6px;padding:10px 12px;border-radius:11px;background:#1d1733;border:1px solid #3a3160;color:#d8ccff;font-size:13px;line-height:1.55}
+/* AI chat */
+.selrow{display:grid;grid-template-columns:1fr 104px;gap:8px;margin:16px 0 6px}
+.selwrap{display:flex;flex-direction:column;gap:5px;min-width:0}
+.selwrap span{font-size:10px;letter-spacing:1.3px;font-weight:800;color:#a3a8b7;text-transform:uppercase}
+select{width:100%;appearance:none;-webkit-appearance:none;border:1px solid var(--line);background:#11131a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239298aa' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center;color:#fff;padding:12px 30px 12px 12px;border-radius:12px;font-size:13px;font-family:inherit;min-width:0}
+.aibar{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px}
+.aistate{font-size:11px;color:#858b9d}
+.linkbtn{background:none;border:0;color:#9b80ff;font-size:11px;cursor:pointer;padding:6px 0;font-family:inherit}
+.aimsgs{padding-bottom:210px}
+.msg{margin:16px 0;animation:up .25s both}
+.msg.user{display:flex;flex-direction:column;align-items:flex-end}
+.tag{font-size:10px;color:#a3a8b7;letter-spacing:.8px;margin-bottom:5px}
+.bubble-u{max-width:90%;background:#8b5cf625;border:1px solid #9b80ff55;border-radius:16px 16px 4px 16px;padding:11px 13px;font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.bubble-a{background:var(--panel);border:1px solid var(--line);border-radius:16px 16px 16px 4px;padding:13px 14px;font-size:13.5px;line-height:1.6;overflow-wrap:anywhere}
+.bubble-a p{margin:0 0 9px}.bubble-a p:last-child{margin:0}.bubble-a ul{margin:0 0 9px;padding-left:18px}.bubble-a li{margin:3px 0}
+.ahead{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:800;letter-spacing:1.3px;color:var(--cyan);margin-bottom:9px;flex-wrap:wrap}
+.ahead i{font-style:normal;color:#858b9d;font-weight:700;letter-spacing:.6px}
+.think{color:var(--muted);display:inline-flex;gap:4px;align-items:center}
+.think b{width:6px;height:6px;border-radius:50%;background:#9b80ff;animation:pulse 1s infinite ease-in-out}
+.think b:nth-child(2){animation-delay:.15s}.think b:nth-child(3){animation-delay:.3s}
+@keyframes pulse{0%,80%,100%{opacity:.25;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+.disc{font-size:10px;color:#777d90;margin-top:10px;line-height:1.4}
+.cutnote{font-size:11px;color:var(--amber);margin-top:8px}
+.aierr{display:none;margin:12px 0;padding:12px 14px;border-radius:13px;border:1px solid #fbbf2455;background:#fbbf2410;color:#f3d58a;font-size:12px;line-height:1.5}
+.aierr.on{display:block}
+.starters{display:grid;gap:8px;margin-top:14px}
+.starter{text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px;color:#d6d9e6;font-size:13px;line-height:1.45;cursor:pointer;font-family:inherit}
+.starter small{display:block;color:#858b9d;font-size:10px;margin-bottom:4px;letter-spacing:.8px}
+.composer{display:none;position:fixed;left:50%;transform:translateX(-50%);width:min(520px,100%);bottom:calc(var(--navh) + env(safe-area-inset-bottom,0px));padding:10px max(14px,env(safe-area-inset-right,0px)) 10px max(14px,env(safe-area-inset-left,0px));background:#0c0d12f5;backdrop-filter:blur(18px);border-top:1px solid #252733;z-index:6;gap:8px;align-items:flex-end}
+body.ai-on .composer{display:flex}
+.composer textarea{flex:1;min-width:0;resize:none;border:1px solid var(--line);background:#11131a;color:#fff;border-radius:16px;padding:12px 14px;font-size:14px;line-height:1.35;max-height:120px;height:44px;outline:0;font-family:inherit}
+.composer textarea:focus{border-color:#a78bfa}
+.composer textarea:disabled{opacity:.5}
+.send{flex-shrink:0;width:44px;height:44px;border-radius:50%;border:0;background:linear-gradient(135deg,#8b5cf6,#36cfe0);color:#fff;font-size:19px;font-weight:800;cursor:pointer;font-family:inherit}
+.send:disabled{opacity:.4;cursor:default}
+.send.stop{background:#2b2e3a;font-size:15px}
+
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);display:grid;grid-template-columns:repeat(4,1fr);background:#0c0d12ed;backdrop-filter:blur(18px);border-top:1px solid #252733;padding:8px max(12px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));z-index:7}
+.nav button{border:0;background:none;color:#777d90;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:5px;cursor:pointer;font-family:inherit}
+.nav button b{font-size:19px;font-weight:400}.nav button.active{color:#c3b2ff}
+.toast{position:fixed;bottom:calc(var(--navh) + 22px + env(safe-area-inset-bottom,0px));left:50%;transform:translate(-50%,12px);opacity:0;background:#f1edff;color:#181321;border-radius:12px;padding:12px 16px;font-size:12px;font-weight:750;z-index:9;transition:.2s;max-width:90vw;pointer-events:none;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@keyframes up{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Мобильные доработки: Android и iOS */
+:root{--navh:68px}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none;-webkit-font-smoothing:antialiased}
+button,label.attbtn,.chip,.rschip,summary{touch-action:manipulation;-webkit-user-select:none;user-select:none}
+input,select,textarea{font-size:16px!important}
+.nav{grid-template-columns:repeat(5,1fr)}
+.nav button{min-height:52px;font-size:11px;justify-content:center}
+.nav button b{font-size:21px;line-height:1}
+.nav button.active b{transform:translateY(-1px)}
+.muted{font-size:14px}
+.tiny{font-size:12px}
+.back{min-height:44px;padding:11px 16px;font-size:13px}
+.chip,.rschip{min-height:44px;padding:11px 14px;font-size:13px}
+#exerciseIndex .chip{min-height:40px;padding:9px 11px}
+.ghost{min-height:46px;font-size:13px}
+.primary{min-height:52px}
+.book{min-height:68px}
+.book small{font-size:11px}
+.toolcard{min-height:112px}
+.hwck{width:30px;height:30px}
+.hwdel{min-width:44px;min-height:44px}
+.starter{min-height:48px}
+.rule summary{min-height:52px}
+.tropt{min-height:56px}
+@media (hover:none){.subject:hover,.toolcard:hover,.book:hover{transform:none}}
+details.others summary{cursor:pointer;margin:0;min-height:30px;display:flex;align-items:center;justify-content:space-between;list-style:none}
+details.others summary::-webkit-details-marker{display:none}
+details.others summary:after{content:"+";color:#9b80ff;font-size:18px}
+details.others[open] summary:after{content:"–"}
+</style>
+
+<div class="app">
+<header class="top"><div class="brand"><div class="logo">G</div>OFFLINE GDZ</div><div class="pill" id="pill">● БАЗА</div></header>
+
+<main id="home" class="view active"><div class="eyebrow">ТВОЯ УЧЁБА. ТВОЙ ТЕМП.</div><h1>Решения<br><span>рядом.</span></h1><p class="muted">Учебники, задания и объяснения — в одном месте.</p>
+<label class="search">⌕ <input id="search" placeholder="Предмет, автор или учебник" enterkeyhint="search"></label>
+<button class="aicard" data-tab="ai"><span class="aiico">✦</span><span><strong>Спроси нейросеть</strong><span class="s">Выбери предмет и класс, напиши вопрос или сфотографируй задание.</span></span></button>
+<button class="aicard" data-tab="exam" style="border-color:#6b2f3a;background:linear-gradient(110deg,#2a1218,#1d1733)"><span class="aiico" style="background:linear-gradient(135deg,#fb7185,#fbbf24);font-weight:900;font-size:24px">5</span><span><strong>Контрольная</strong><span class="s">Проверочная работа с оценкой и разбором ошибок. Работает без интернета.</span></span></button>
+<div class="grid" style="margin:0 0 26px">
+<button class="toolcard" data-tab="diary" style="--a:#fbbf24"><span class="ico">✎</span><span class="name">Дневник ДЗ</span><span class="desc">Что и к какому числу</span></button>
+<button class="toolcard" data-tab="trainer" style="--a:#f472b6"><span class="ico">✓</span><span class="name">Тренажёр</span><span class="desc">10 вопросов, рекорды</span></button>
+<button class="toolcard" data-tab="rules" style="--a:#4ade80"><span class="ico">§</span><span class="name">Правила</span><span class="desc">Шпаргалки и формулы</span></button>
+<button class="toolcard" data-tab="grades" style="--a:#48d9ed"><span class="ico">≈</span><span class="name">Оценки</span><span class="desc">Средний балл и цель</span></button>
+</div>
+<div class="heading"><h2>Предметы</h2><span class="tiny">5–7 классы</span></div>
+<div class="grid" id="grid"></div>
+<div class="feature"><div class="featureicon">↓</div><div><strong>Своя база решений</strong><p>Во вкладке «Ещё → База решений» можно добавлять решения по номерам пачкой (JSON) и выгружать их обратно. Всё хранится на устройстве.</p></div></div>
+</main>
+
+<main id="catalog" class="view"><button class="back" data-go="home">← Все предметы</button>
+<div class="detailhead"><div class="ico" id="sicon">x²</div><div><h2 id="sname">Алгебра</h2><p class="muted" id="sdesc"></p></div></div>
+<div class="label">Учебники и пособия</div><div class="books" id="booklist"></div>
+<div class="label">Номер задания</div><input class="field" id="exercise" placeholder="Например, 1.3 или 456" inputmode="text" autocomplete="off"><button class="primary" id="findbtn">Найти решение ↗</button>
+<div class="label" id="idxlabel">Номера</div><p class="muted" style="font-size:11px;margin-top:0" id="idxnote"></p><div id="exerciseIndex" class="chips"></div></main>
+
+<main id="solution" class="view"><button class="back" id="solback">← К учебнику</button><div class="eyebrow">БАЗА РЕШЕНИЙ</div><h2 style="font-size:25px;margin:0 0 7px" id="soltitle">Решение</h2><p class="muted" id="solsub"></p><div class="result" id="solbox"></div>
+<div class="row"><button class="ghost" id="favbtn">☆ В избранное</button><button class="ghost" id="nextbtn">Следующий № →</button></div>
+<div class="row"><button class="ghost ai" id="askbtn">✦ Спросить ИИ</button></div></main>
+
+<main id="ai" class="view"><div class="eyebrow">НЕЙРОСЕТЬ</div><h2 style="font-size:30px;margin:0;letter-spacing:-.8px">Спроси ИИ</h2>
+<p class="muted" style="margin:8px 0 0">Выбери предмет и класс, чтобы ответ был по уровню.</p>
+<div class="selrow"><label class="selwrap"><span>Предмет</span><select id="aisub"></select></label><label class="selwrap"><span>Класс</span><select id="aigrade"></select></label></div>
+<div class="aibar"><span class="aistate" id="aistate">Подключаю нейросеть…</span><button class="linkbtn" id="aiclear" hidden>Очистить чат</button></div>
+<details class="others"><summary class="olabel">Спросить в другой нейросети</summary><div class="orow" style="margin-top:10px"><a class="otherai" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT</a><a class="otherai" href="https://gemini.google.com/" target="_blank" rel="noopener">Gemini</a><a class="otherai" href="https://chat.deepseek.com/" target="_blank" rel="noopener">DeepSeek</a></div><span class="ohint">Нажми: вопрос скопируется, сайт откроется в новой вкладке. Вставь вопрос в чат. Нужен интернет.</span></details>
+<div class="aierr" id="aierr" role="alert"></div>
+<div class="aimsgs" id="aimsgs"></div></main>
+
+<main id="practice" class="view"><div class="eyebrow">ПРАКТИКА</div><h2 style="font-size:30px;margin:0;letter-spacing:-.8px">Потренироваться</h2>
+<p class="muted" style="margin:8px 0 0">Всё это работает без интернета.</p>
+<div class="books" style="margin-top:18px">
+<button class="book" data-tab="exam"><span class="bookico">5</span><span style="flex:1"><strong>Контрольная</strong><small>Проверочная работа на 10–20 вопросов с таймером, оценкой и разбором ошибок.</small></span><span class="arrow">›</span></button>
+<button class="book" data-tab="trainer"><span class="bookico">✓</span><span style="flex:1"><strong>Тренажёр</strong><small>Устный счёт, неправильные глаголы, -тся и -ться. Раунды по 10 вопросов, рекорды.</small></span><span class="arrow">›</span></button>
+<button class="book" data-tab="rules"><span class="bookico">§</span><span style="flex:1"><strong>Правила и формулы</strong><small>Короткие шпаргалки по математике, алгебре, русскому и английскому.</small></span><span class="arrow">›</span></button>
+<button class="book" data-tab="grades"><span class="bookico">≈</span><span style="flex:1"><strong>Калькулятор оценок</strong><small>Средний балл и сколько пятёрок нужно до нужной оценки.</small></span><span class="arrow">›</span></button>
+</div></main>
+
+<main id="more" class="view"><div class="eyebrow">ЕЩЁ</div><h2 style="font-size:30px;margin:0;letter-spacing:-.8px">Мои материалы</h2>
+<div class="books" style="margin-top:18px">
+<button class="book" data-tab="favorites"><span class="bookico">☆</span><span style="flex:1"><strong>Избранное</strong><small>Сохранённые решения из базы.</small></span><span class="arrow">›</span></button>
+<button class="book" data-tab="downloads"><span class="bookico">↓</span><span style="flex:1"><strong>База решений</strong><small>Статистика, добавление решений, импорт и экспорт.</small></span><span class="arrow">›</span></button>
+</div>
+<div class="result"><strong>Что работает без интернета</strong><p class="muted" style="margin:8px 0 0">Каталог, база решений, избранное, дневник ДЗ, калькулятор оценок, тренажёр и правила. Для ответов нейросети нужен интернет.</p>
+<p class="muted" style="margin:8px 0 0">Дневник, оценки, рекорды и добавленные решения хранятся на этом устройстве. Если удалить данные приложения или браузера, они пропадут.</p></div></main>
+
+<main id="exam" class="view"><button class="back" data-go="practice">← Практика</button><div class="eyebrow">ПРОВЕРОЧНАЯ РАБОТА</div><h2 style="font-size:30px;margin:0;letter-spacing:-.8px">Контрольная</h2><div id="exbody"></div></main>
+
+<main id="diary" class="view"><div class="eyebrow">ДНЕВНИК</div><h2 style="font-size:30px;margin:0;letter-spacing:-.8px">Домашние задания</h2>
+<p class="muted" style="margin:8px 0 0" id="hwsum"></p>
+<div class="hwform"><select id="hwsub" aria-label="Предмет"></select><input class="field" id="hwtext" placeholder="Что задали? Например, № 456" autocomplete="off" maxlength="200"><input class="field" id="hwdate" type="date" aria-label="К какому числу">
+<div class="rschips" style="margin:0"><button class="rschip" data-hwd="0">Сегодня</button><button class="rschip" data-hwd="1">Завтра</button><button class="rschip" data-hwd="2">Послезавтра</button><button class="rschip" data-hwd="7">Через неделю</button></div>
+<button class="primary" id="hwadd">Добавить в дневник</button></div><div id="hwbody"></div></main>
+
+<main id="grades" class="view"><button class="back" data-go="practice">← Практика</button><div class="eyebrow">ИНСТРУМЕНТ</div><h2 style="font-size:30px;margin:0;letter-spacing:-.8px">Калькулятор оценок</h2>
+<p class="muted" style="margin:8px 0 0">Добавь оценки за четверть и узнай средний балл. Нажми на оценку в списке, чтобы убрать её.</p>
+<div class="label">Добавить оценку</div><div class="gopts"><button class="tropt" data-gadd="2">2</button><button class="tropt" data-gadd="3">3</button><button class="tropt" data-gadd="4">4</button><button class="tropt" data-gadd="5">5</button></div>
+<div class="label">Твои оценки</div><div class="chips" id="glist"></div>
+<div class="label">Хочу получить в четверти</div><div class="rschips" style="margin-top:0"><button class="rschip" data-gt="4">4</button><button class="rschip" data-gt="5">5</button></div>
+<div class="result" id="gres"></div><div class="row"><button class="ghost" id="gclear">Очистить оценки</button></div></main>
+
+<main id="trainer" class="view"><button class="back" data-go="practice">← Практика</button><div class="eyebrow">ТРЕНАЖЁР</div><h2 style="font-size:30px;margin:0;letter-spacing:-.8px">Проверь себя</h2>
+<p class="muted" style="margin:8px 0 0">Раунд — 10 вопросов. Вопросы каждый раз новые.</p><div id="trbody"></div></main>
+
+<main id="rules" class="view"><button class="back" data-go="practice">← Практика</button><div class="eyebrow">ШПАРГАЛКИ</div><h2 style="font-size:30px;margin:0;letter-spacing:-.8px">Правила и формулы</h2>
+<p class="muted" style="margin:8px 0 0">Короткие правила с примерами. Нажми на тему, чтобы открыть.</p>
+<label class="search" style="margin:16px 0 0">⌕ <input id="rsearch" placeholder="Найти правило, например «дроби»"></label>
+<div class="rschips" id="rschips"></div><div class="rules" id="ruleslist"></div></main>
+
+<main id="favorites" class="view"><button class="back" data-go="more">← Ещё</button><div class="eyebrow">ТВОЯ КОЛЛЕКЦИЯ</div><h2 style="font-size:30px;margin:0">Избранное</h2><div id="favbox"></div></main>
+
+<main id="downloads" class="view"><button class="back" data-go="more">← Ещё</button><div class="eyebrow">ВСЕГДА ПОД РУКОЙ</div><h2 style="font-size:30px;margin:0">База</h2>
+<div class="result"><strong>Что загружено</strong><div id="stats"></div></div>
+<div class="result"><strong>Добавить решения</strong><p class="muted">Вставь JSON-массив или выбери файл. Формат — кнопка «Шаблон». Решения без <code>"checked": true</code> помечаются как черновик.</p>
+<textarea class="field" id="importbox" placeholder='[{"book":"math6","number":"1.5","statement":"...","steps":["..."],"answer":"..."}]' spellcheck="false"></textarea>
+<div class="row"><button class="ghost" id="tplbtn">Шаблон</button><button class="ghost" id="filebtn">Файл…</button><input type="file" id="filein" accept=".json,application/json" hidden></div>
+<button class="primary" id="importbtn">Добавить в базу</button><p class="muted" id="importmsg" style="font-size:12px"></p></div>
+<div class="row"><button class="ghost" id="exportbtn">Скачать всю базу (JSON)</button><button class="ghost" id="resetbtn">Удалить добавленное</button></div>
+<p class="muted" id="exportnote" style="font-size:12px"></p>
+<p class="muted" style="font-size:11px;margin-top:14px">ID учебников для поля <code>book</code>: <span id="bookids"></span></p></main>
+</div>
+
+<div class="composer" id="composer"><div class="attprev" id="attprev" hidden></div><label class="attbtn" id="attbtn" for="photoin" role="button" aria-label="Прикрепить фото задания" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></label><input type="file" id="photoin" class="vh" accept="image/*"><textarea id="aiq" rows="1" placeholder="Задай вопрос по предмету…" aria-label="Вопрос нейросети" disabled></textarea><button class="send" id="sendbtn" aria-label="Отправить" disabled>↑</button></div>
+
+<nav class="nav" aria-label="Разделы"><button class="active" data-tab="home"><b>⌂</b>Главная</button><button data-tab="ai"><b>✦</b>ИИ</button><button data-tab="diary"><b>✎</b>Дневник</button><button data-tab="practice"><b>✓</b>Практика</button><button data-tab="more"><b>⋯</b>Ещё</button></nav>
+<div id="toast" class="toast"></div>
+
+<script>
+/* ===== ДАННЫЕ ===== */
+const SUBJECTS=[
+ {name:'Математика',icon:'∑',color:'#a78bfa',desc:'5–6 классы'},
+ {name:'Алгебра',icon:'x²',color:'#48d9ed',desc:'7 класс'},
+ {name:'Русский язык',icon:'АЯ',color:'#f08bb8',desc:'6–7 классы'},
+ {name:'Английский язык',icon:'Aa',color:'#b6f36b',desc:'7 класс'}];
+// range: диапазон номеров для индекса (взят из исходного проекта, не сверен с учебником)
+const BOOKS=[
+ {id:'math5',subject:'Математика',grade:5,title:'Математика, 5 класс',author:'Виленкин, Шевцова',detail:'Учебник · 5 класс',mark:'5'},
+ {id:'math6',subject:'Математика',grade:6,title:'Математика, 6 класс',author:'Виленкин, Шевцова',detail:'Учебник · 6 класс · часть 1',mark:'6',range:{prefix:'1.',from:1,to:198}},
+ {id:'alg7',subject:'Алгебра',grade:7,title:'Алгебра, 7 класс',author:'Макарычев, Миндюк, Нешков и др.',detail:'Базовый уровень · учебник',mark:'x²'},
+ {id:'rus7',subject:'Русский язык',grade:7,title:'Русский язык, 7 класс',author:'Баранова',detail:'Учебник · 7 класс',mark:'7'},
+ {id:'rus6',subject:'Русский язык',grade:6,title:'Русский язык, 6 класс',author:'Баранов',detail:'Учебник · издание 2008 года',mark:'6'},
+ {id:'spot7wb',subject:'Английский язык',grade:7,title:'Spotlight 7 — рабочая тетрадь',author:'Ваулина, Дули, Подоляко, Эванс',detail:'Workbook · 7 класс',mark:'EN'},
+ {id:'spot7',subject:'Английский язык',grade:7,title:'Английский в фокусе, 7 класс',author:'Ваулина',detail:'Учебник · 7 класс',mark:'Aa'}];
+const BUILTIN=[
+ {book:'math6',number:'1.1',source:'Виленкин и др., 6 класс, часть 1',
+  statement:'Отметьте на координатной прямой числа 4 и 12. Найдите их среднее арифметическое и тоже отметьте его на координатной прямой. Какое предположение можно сделать?',
+  steps:['Среднее арифметическое двух чисел равно их сумме, делённой на 2.','(4 + 12) : 2 = 16 : 2 = 8.','Число 8 находится посередине между 4 и 12: расстояние от 4 до 8 равно 4, и от 8 до 12 тоже 4.'],
+  answer:'8. Среднее арифметическое двух чисел находится посередине между ними на координатной прямой.',checked:true},
+ {book:'math6',number:'1.3',source:'Виленкин и др., 6 класс, часть 1',
+  statement:'Найдите среднее арифметическое чисел: а) 83,4 и 84,5; б) 0,2; 0,3 и 0,4; в) 2,23; 2,26; 2,34 и 2,07; г) 6,276; 5,864; 7,223; 9,106; 8,728 и 3,003.',
+  steps:['а) (83,4 + 84,5) : 2 = 167,9 : 2 = 83,95.','б) (0,2 + 0,3 + 0,4) : 3 = 0,9 : 3 = 0,3.','в) (2,23 + 2,26 + 2,34 + 2,07) : 4 = 8,90 : 4 = 2,225.','г) (6,276 + 5,864 + 7,223 + 9,106 + 8,728 + 3,003) : 6 = 40,2 : 6 = 6,7.'],
+  answer:'а) 83,95; б) 0,3; в) 2,225; г) 6,7.',checked:true},
+ {book:'math6',number:'1.4',source:'Виленкин и др., 6 класс, часть 1',
+  statement:'В течение недели ноября ежедневно в 12 часов дня школьники записывали показания термометра: 4,1; 3,8; 4,1; 4,2; 4,1; 4,0; 3,9 градусов тепла. Найдите среднюю температуру за эту неделю в 12 ч дня. Округлите до десятых.',
+  steps:['Складываем семь измерений: 4,1 + 3,8 + 4,1 + 4,2 + 4,1 + 4,0 + 3,9 = 28,2.','Делим сумму на 7 дней: 28,2 : 7 = 4,028571…','Округляем до десятых. В разряде сотых стоит 2, поэтому десятые не меняются.'],
+  answer:'4,0 °C.',checked:true}];
+
+/* ===== ХРАНИЛИЩЕ ===== */
+const LS_TASKS='ogdz_user_tasks_v2',LS_FAVS='ogdz_favs_v2',LS_AI='ogdz_ai_v1',LS_AIPREF='ogdz_aipref_v1';
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function lsGet(k,def){try{const v=JSON.parse(localStorage.getItem(k));return v??def}catch(e){return def}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+const bookById=Object.fromEntries(BOOKS.map(b=>[b.id,b]));
+const normNum=n=>String(n??'').replace(/№/g,'').replace(/\s+/g,'').replace(',','.').trim();
+const keyOf=(b,n)=>b+'|'+normNum(n);
+const builtin={};BUILTIN.forEach(e=>builtin[keyOf(e.book,e.number)]=e);
+let userTasks=lsGet(LS_TASKS,{});let favs=lsGet(LS_FAVS,[]);
+if(!userTasks||typeof userTasks!=='object'||Array.isArray(userTasks))userTasks={};
+if(!Array.isArray(favs))favs=[];
+const getEntry=(b,n)=>userTasks[keyOf(b,n)]||builtin[keyOf(b,n)]||null;
+const allEntries=()=>Object.values(Object.assign({},builtin,userTasks));
+const countFor=id=>allEntries().filter(e=>e.book===id).length;
+
+/* ===== ИМПОРТ ===== */
+function validate(e,i){
+  const p='Запись '+(i+1)+': ';
+  if(!e||typeof e!=='object')return p+'не объект';
+  if(!bookById[e.book])return p+'неизвестный book «'+e.book+'»';
+  if(!normNum(e.number))return p+'нет number';
+  if(typeof e.statement!=='string'||e.statement.trim().length<5)return p+'нет statement (условия)';
+  if(!Array.isArray(e.steps)||!e.steps.length||e.steps.some(s=>typeof s!=='string'||!s.trim()))return p+'steps должен быть непустым массивом строк';
+  if(typeof e.answer!=='string'||!e.answer.trim())return p+'нет answer';
+  return null;
+}
+function importJSON(text){
+  let data;try{data=JSON.parse(text)}catch(err){return{added:0,errors:['Не получилось прочитать JSON: '+err.message]}}
+  if(!Array.isArray(data))data=[data];
+  let added=0;const errors=[];
+  data.forEach((e,i)=>{const er=validate(e,i);if(er){errors.push(er);return}
+    userTasks[keyOf(e.book,e.number)]={book:e.book,number:normNum(e.number),statement:e.statement.trim(),steps:e.steps.map(s=>s.trim()),answer:e.answer.trim(),source:String(e.source||'').trim(),checked:e.checked===true};added++});
+  if(added&&!lsSet(LS_TASKS,userTasks))errors.push('Не удалось сохранить в память браузера. Решения останутся только до закрытия страницы, скачай базу кнопкой ниже.');
+  return{added,errors};
+}
+
+/* ===== НАВИГАЦИЯ ===== */
+let curBook=null,curSubject=null,curNum='';
+const TABS=['home','ai','diary','practice','more'];
+const PARENT={exam:'practice',rules:'practice',trainer:'practice',grades:'practice',favorites:'more',downloads:'more'};
+function go(id,fromPop){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(id).classList.add('active');
+  document.body.classList.toggle('ai-on',id==='ai');
+  const t=TABS.includes(id)?id:(PARENT[id]||'home');
+  document.querySelectorAll('.nav button').forEach(x=>{const on=x.dataset.tab===t;x.classList.toggle('active',on);if(on)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});
+  if(!fromPop){try{history.pushState({v:id},'')}catch(e){}}
+  window.scrollTo({top:0,behavior:'auto'});
+}
+function tab(id,fromPop){go(id,fromPop);if(id==='exam')renderExam();if(id==='diary')renderDiary();if(id==='grades')renderGrades();if(id==='trainer'){tr=null;renderTrainer()}if(id==='rules')renderRules();if(id==='favorites')renderFavs();if(id==='downloads')renderStats();if(id==='ai')renderMsgs();if(!fromPop){try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}}}
+window.addEventListener('popstate',e=>{const v=e.state&&e.state.v;tab(v&&document.getElementById(v)?v:'home',true)});
+try{history.replaceState({v:'home'},'')}catch(e){}
+let tt;function toast(s){const t=$('toast');t.textContent=s;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2300)}
+
+/* ===== ГЛАВНАЯ ===== */
+function renderHome(){
+  $('grid').innerHTML=SUBJECTS.map((s,i)=>{const bs=BOOKS.filter(b=>b.subject===s.name);
+    const n=bs.reduce((a,b)=>a+countFor(b.id),0);
+    const hay=(s.name+' '+bs.map(b=>b.title+' '+b.author).join(' ')).toLowerCase();
+    return `<button class="subject" style="--a:${s.color}" data-subject="${i}" data-hay="${esc(hay)}"><span class="ico">${s.icon}</span><span class="name">${s.name}</span><span class="desc">${s.desc} · ${bs.length} уч. · ${n} реш.</span><span class="arr">↗</span></button>`}).join('');
+  $('pill').textContent='● РЕШЕНИЙ: '+allEntries().length;
+}
+function openSubject(i){
+  const s=SUBJECTS[i];curSubject=s;curBook=null;
+  $('sname').textContent=s.name;$('sdesc').textContent=s.desc;$('sicon').textContent=s.icon;$('sicon').style.setProperty('--a',s.color);
+  $('booklist').innerHTML=BOOKS.filter(b=>b.subject===s.name).map(b=>`<button class="book" data-book="${b.id}"><span class="bookico">${b.mark}</span><span style="flex:1"><strong>${esc(b.title)}</strong><small>${esc(b.author)}<br>${esc(b.detail)} · решений: ${countFor(b.id)}</small></span><span class="arrow">›</span></button>`).join('');
+  $('exercise').value='';
+  const bs=BOOKS.filter(b=>b.subject===s.name);
+  if(bs.length===1)chooseBook(bs[0].id,true);else renderIndex();
+  go('catalog');
+}
+function chooseBook(id,silent){
+  curBook=id;document.querySelectorAll('.book').forEach(b=>b.classList.toggle('sel',b.dataset.book===id));
+  renderIndex();if(!silent)toast('Выбрано: '+bookById[id].title);
+}
+function renderIndex(){
+  const box=$('exerciseIndex');
+  if(!curBook){$('idxlabel').textContent='Номера';$('idxnote').textContent='Выбери учебник, чтобы увидеть номера.';box.innerHTML='';return}
+  const b=bookById[curBook];const have=allEntries().filter(e=>e.book===b.id).map(e=>e.number);
+  $('idxlabel').textContent='Номера · '+b.title;
+  let nums=[];
+  if(b.range){for(let i=b.range.from;i<=b.range.to;i++)nums.push(b.range.prefix+i);
+    $('idxnote').textContent='Зелёные — решения есть в базе ('+have.length+'). Остальные номера в списке взяты из исходного проекта и не сверены с учебником.'}
+  else{nums=have.slice();$('idxnote').textContent=have.length?'В базе пока только эти номера. Любой другой можно ввести вручную.':'Для этого учебника в базе пока ничего нет. Добавь решения во вкладке «База» или спроси ИИ.'}
+  const setHave=new Set(have);
+  nums.sort((a,c)=>a.localeCompare(c,undefined,{numeric:true}));
+  box.innerHTML=nums.map(n=>`<button class="chip ${setHave.has(n)?'ok':''}" data-num="${esc(n)}">${esc(n)}${setHave.has(n)?' ✓':''}</button>`).join('');
+}
+
+/* ===== РЕШЕНИЕ ===== */
+function openTask(num){
+  if(!curBook){toast('Сначала выбери учебник');return}
+  num=normNum(num);if(!num){toast('Введи номер задания');$('exercise').focus();return}
+  curNum=num;const b=bookById[curBook];
+  $('soltitle').textContent=b.subject+' · '+b.grade+' класс';
+  $('solsub').textContent=b.title+' · № '+num;
+  const e=getEntry(curBook,num);
+  if(e){
+    $('solbox').innerHTML=`<span class="badge ${e.checked?'ok':'draft'}">${e.checked?'ПРОВЕРЕНО':'ЧЕРНОВИК · НЕ ПРОВЕРЕНО'}</span>${e.source?`<div class="tiny" style="margin-bottom:10px">${esc(e.source)}</div>`:''}
+    <p class="muted"><strong>Условие:</strong> ${esc(e.statement)}</p><div class="label">Решение</div>
+    ${e.steps.map((s,i)=>`<div class="step"><span class="n">${String(i+1).padStart(2,'0')}</span><div>${esc(s)}</div></div>`).join('')}
+    <div class="eq">Ответ: ${esc(e.answer)}</div>`;
+    $('askbtn').textContent='✦ Объяснить подробнее с ИИ';
+  }else{
+    $('solbox').innerHTML=`<div style="font-size:25px;margin-bottom:10px">📚</div><strong style="font-size:16px">Решения пока нет</strong><p class="muted">Для «${esc(b.title)}», № ${esc(num)} в базе записи нет. Приложение не выдумывает условие и ответ. Можно добавить решение во вкладке «База» или спросить нейросеть.</p>`;
+    $('askbtn').textContent='✦ Спросить ИИ про этот номер';
+  }
+  updateFavBtn();go('solution');
+}
+const favKey=()=>keyOf(curBook,curNum);
+function updateFavBtn(){const on=favs.includes(favKey());$('favbtn').textContent=on?'★ В избранном':'☆ В избранное'}
+function toggleFav(){
+  if(!getEntry(curBook,curNum)){toast('Сохранять можно только найденные решения');return}
+  const k=favKey();favs=favs.includes(k)?favs.filter(x=>x!==k):favs.concat(k);lsSet(LS_FAVS,favs);updateFavBtn();
+}
+function nextNum(){
+  const m=curNum.match(/^(.*?)(\d+)$/);if(!m){toast('Нечего листать');return}
+  $('exercise').value=m[1]+(+m[2]+1);openTask($('exercise').value);
+}
+function renderFavs(){
+  const items=favs.map(k=>{const [b,n]=k.split('|');return getEntry(b,n)}).filter(Boolean);
+  $('favbox').innerHTML=items.length?'<div class="books" style="margin-top:18px">'+items.map(e=>`<button class="book" data-fb="${e.book}" data-fn="${esc(e.number)}"><span class="bookico">${esc(bookById[e.book].mark)}</span><span style="flex:1"><strong>№ ${esc(e.number)} · ${esc(bookById[e.book].title)}</strong><small>${esc(e.statement.slice(0,90))}…</small></span><span class="arrow">›</span></button>`).join('')+'</div>':'<div class="empty">☆<br>Здесь появятся сохранённые решения.</div>';
+}
+
+/* ===== БАЗА ===== */
+function renderStats(){
+  $('stats').innerHTML=BOOKS.map(b=>{const es=allEntries().filter(e=>e.book===b.id);const ok=es.filter(e=>e.checked).length;const tot=b.range?(b.range.to-b.range.from+1):0;
+    const pct=tot?Math.round(es.length/tot*100):(es.length?100:0);
+    return `<div class="step" style="display:block"><b>${esc(b.title)}</b><div class="tiny">${es.length} реш. · проверено ${ok}${tot?' · из ~'+tot+' номеров':''}</div><div class="bar"><i style="width:${pct}%"></i></div></div>`}).join('');
+  $('bookids').textContent=BOOKS.map(b=>b.id).join(', ');
+}
+const TEMPLATE=[{book:'math6',number:'1.5',source:'Виленкин, 6 класс, часть 1',statement:'Текст условия из учебника',steps:['Шаг 1','Шаг 2'],answer:'Ответ',checked:false}];
+let downloads=null;
+async function saveBase(){
+  const text=JSON.stringify(allEntries(),null,2);
+  if(downloads){
+    try{await downloads.save({filename:'offline_gdz_base.json',data:text});return}catch(e){}
+  }
+  $('importbox').value=text;
+  $('exportnote').textContent='Скачивание недоступно на этой странице. Вся база выведена в поле выше, скопируй её и сохрани в файл.';
+}
+
+/* ===== ИИ-РЕПЕТИТОР ===== */
+const AI_SUBJECTS=['Математика','Алгебра','Геометрия','Русский язык','Литература','Английский язык','Физика','Химия','Биология','География','История','Обществознание','Информатика','Другое'];
+const RULES='Ты репетитор для школьников в приложении OFFLINE GDZ. В начале каждого сообщения ученика в квадратных скобках указаны предмет и класс: объясняй на уровне этого класса и по программе этого предмета. Отвечай по-русски, дружелюбно и по делу. '+
+ 'Структура ответа: сначала одна строка с идеей или коротким ответом, затем решение по шагам с пояснением, почему так, в конце строка «**Ответ:** …». '+
+ 'Математику пиши обычным текстом без LaTeX: дроби как 3/4, степени как x², корень как √. '+
+ 'Если ученик назвал только номер задания из учебника и не прислал условие, не выдумывай условие и не угадывай ответ, а попроси прислать текст задания. '+
+ 'Если не уверен в ответе, скажи об этом прямо. Не используй таблицы и заголовки с символом #. Короткие списки допустимы, пункты начинай с дефиса. Длина ответа до 250 слов, если ученик не просит подробнее. '+
+ 'Если к сообщению приложено фото задания, сначала одной строкой напиши, какое задание ты на нём прочитал (номер и условие), потом реши его. Если текст на фото нечитаем, обрезан или условие неполное, не угадывай, а попроси сделать фото ещё раз: ближе, при хорошем свете, без бликов и теней.';
+let sample=null,aiReady=false,busy=false,ctl=null;
+let msgs=lsGet(LS_AI,[]);if(!Array.isArray(msgs))msgs=[];
+msgs=msgs.filter(m=>m&&(m.role==='user'||m.role==='assistant')&&typeof m.text==='string');
+let pref=lsGet(LS_AIPREF,{subject:'Математика',grade:'6'});
+if(!pref||!AI_SUBJECTS.includes(pref.subject))pref={subject:'Математика',grade:'6'};
+function savePref(){lsSet(LS_AIPREF,{subject:$('aisub').value,grade:$('aigrade').value})}
+function saveMsgs(){lsSet(LS_AI,msgs.slice(-30))}
+function inline(s){return s.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')}
+function fmt(t){
+  return esc(t).split(/\n{2,}/).map(p=>{
+    const lines=p.split('\n');
+    if(lines.every(l=>/^\s*[-•]\s+/.test(l)))return '<ul>'+lines.map(l=>'<li>'+inline(l.replace(/^\s*[-•]\s+/,''))+'</li>').join('')+'</ul>';
+    return '<p>'+lines.map(inline).join('<br>')+'</p>';
+  }).join('');
+}
+const STARTERS=[
+ {s:'Математика',g:'6',q:'Объясни, как находить среднее арифметическое, на примере.'},
+ {s:'Алгебра',g:'7',q:'Как решать линейные уравнения с дробями? Разбери один пример.'},
+ {s:'Русский язык',g:'6',q:'Как отличить -тся и -ться? Дай простое правило и примеры.'}];
+function userHTML(m){return `<div class="msg user"><div class="tag">${esc(m.subj)} · ${esc(m.grade)} класс${m.img?' · с фото':''}</div><div class="bubble-u">${esc(m.text)}</div></div>`}
+function aiHTML(m){return `<div class="msg ai"><div class="bubble-a"><div class="ahead">ОТВЕТ НЕЙРОСЕТИ <i>${esc(m.subj)} · ${esc(m.grade)} класс</i></div>${fmt(m.text)}${m.cut?'<div class="cutnote">Ответ оборван. Попроси продолжить или задай вопрос короче.</div>':''}<div class="disc">ИИ может ошибаться. Сверяй важное с учебником и учителем.</div></div></div>`}
+function renderMsgs(){
+  const box=$('aimsgs');
+  $('aiclear').hidden=!msgs.length;
+  if(!msgs.length){
+    box.innerHTML='<div class="label">Попробуй спросить</div><div class="starters">'+STARTERS.map((x,i)=>`<button class="starter" data-st="${i}"><small>${esc(x.s)} · ${x.g} класс</small>${esc(x.q)}</button>`).join('')+'</div>';
+    return;
+  }
+  box.innerHTML=msgs.map(m=>m.role==='user'?userHTML(m):aiHTML(m)).join('');
+  scrollEnd();
+}
+function scrollEnd(){window.scrollTo({top:document.documentElement.scrollHeight,behavior:'smooth'})}
+function addLive(subj,grade){
+  $('aimsgs').insertAdjacentHTML('beforeend',`<div class="msg ai" id="live"><div class="bubble-a"><div class="ahead">ОТВЕТ НЕЙРОСЕТИ <i>${esc(subj)} · ${esc(grade)} класс</i></div><div id="livetxt"><span class="think" aria-label="Нейросеть думает"><b></b><b></b><b></b></span></div></div></div>`);
+  scrollEnd();
+}
+function setLive(text){const el=$('livetxt');if(el){el.innerHTML=fmt(text);scrollEnd()}}
+function showErr(t){const el=$('aierr');el.textContent=t||'';el.classList.toggle('on',!!t)}
+function updateAIState(){
+  const ta=$('aiq'),sb=$('sendbtn');
+  if(!aiReady){$('aistate').textContent='Подключаю нейросеть…';ta.disabled=true;sb.disabled=true;return}
+  if(!sample){
+    $('aistate').textContent='ИИ недоступен';
+    ta.disabled=false;sb.disabled=true;ta.placeholder='Напиши вопрос и отправь его в другую нейросеть';
+    showErr('Встроенная нейросеть Claude работает, когда страница открыта в Claude и ты разрешил ей ответы. Здесь можно написать вопрос и отправить его в ChatGPT, Gemini или DeepSeek кнопками выше. Каталог и правила работают без интернета.');
+    return;
+  }
+  $('aistate').textContent='Готова отвечать';
+  ta.disabled=false;sb.disabled=false;ta.placeholder='Задай вопрос по предмету…';
+}
+function setBusy(b){
+  const sb=$('sendbtn');sb.classList.toggle('stop',b);sb.textContent=b?'■':'↑';sb.setAttribute('aria-label',b?'Остановить':'Отправить');
+  $('aiq').disabled=b;
+}
+function autosize(){const ta=$('aiq');ta.style.height='auto';ta.style.height=Math.min(Math.max(ta.scrollHeight,44),120)+'px'}
+function buildTurns(){
+  const hist=msgs.slice(-12);while(hist.length&&hist[0].role!=='user')hist.shift();
+  return [{role:'user',content:RULES}].concat(hist.map(m=>({role:m.role,content:m.role==='user'?`[Предмет: ${m.subj}, класс: ${m.grade}]\n\n${m.text}${m.img&&m===hist[hist.length-1]?'\n\n(Фото задания приложено к этому сообщению.)':''}`:m.text})));
+}
+const ERR_COPY={
+ rate_limited:'Слишком много запросов или закончился лимит. Подожди немного и отправь снова.',
+ session_expired:'Нужно войти в аккаунт заново. Обнови страницу.',
+ refused:'Нейросеть не стала отвечать на этот вопрос. Переформулируй его.',
+ prompt_too_large:'Вопрос слишком длинный. Сократи его.',
+ empty_completion:'Ответ пришёл пустым. Переформулируй вопрос.',
+ image_rejected:'Фото не подошло. Нужен снимок в формате JPG, PNG или WebP, размером до 20 МБ. Сфотографируй задание ещё раз.',
+ images_unavailable:'Здесь нельзя прикреплять фото. Напиши условие текстом.'};
+const HIDE_CODES=['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'];
+async function send(){
+  if(busy||!sample)return;
+  const ph=photo,typed=$('aiq').value.trim();
+  if(!typed&&!ph){toast('Напиши вопрос или прикрепи фото');return}
+  const q=typed||'Реши задание с фото и объясни по шагам.';
+  const subj=$('aisub').value,grade=$('aigrade').value;
+  showErr('');
+  msgs.push({role:'user',text:q,subj,grade,img:!!ph});
+  clearPhoto();
+  $('aiq').value='';autosize();
+  busy=true;ctl=new AbortController();setBusy(true);renderMsgs();addLive(subj,grade);
+  try{
+    const r=await sample(buildTurns(),Object.assign({cache:false,signal:ctl.signal,onText:({text})=>setLive(text)},ph?{images:ph}:{}));
+    msgs.push({role:'assistant',text:r.text,subj,grade,cut:!!r.truncated});
+  }catch(e){
+    const code=e&&e.code,part=e&&typeof e.text==='string'?e.text.trim():'';
+    if(part&&code!=='refused'){msgs.push({role:'assistant',text:part,subj,grade,cut:true})}
+    else{msgs.pop();$('aiq').value=typed;autosize();if(ph)setPhoto(ph)}
+    if(code==='cancelled'){/* остановил сам ученик */}
+    else if(code==='images_unavailable'){$('attbtn').hidden=true;clearPhoto();showErr(ERR_COPY[code])}
+    else if(HIDE_CODES.includes(code)){sample=null;updateAIState()}
+    else showErr(ERR_COPY[code]||'Не получилось получить ответ. Нажми отправить ещё раз.');
+  }finally{
+    busy=false;ctl=null;setBusy(false);saveMsgs();renderMsgs();
+  }
+}
+function askAboutTask(){
+  const b=bookById[curBook],e=getEntry(curBook,curNum);if(!b)return;
+  $('aisub').value=AI_SUBJECTS.includes(b.subject)?b.subject:'Другое';
+  $('aigrade').value=String(b.grade);savePref();
+  $('aiq').value=e?`Объясни подробнее, как решается задание № ${curNum} из учебника «${b.title}».\nУсловие: ${e.statement}`:`Помоги разобраться с заданием № ${curNum} из учебника «${b.title}». Условие: `;
+  tab('ai');autosize();if(!$('aiq').disabled)$('aiq').focus();
+}
+let photo=null,photoURL='';
+function clearPhoto(){
+  photo=null;
+  if(photoURL){try{URL.revokeObjectURL(photoURL)}catch(e){}photoURL=''}
+  const p=$('attprev');p.hidden=true;p.innerHTML='';
+}
+function setPhoto(file){
+  clearPhoto();photo=file;
+  try{photoURL=URL.createObjectURL(file)}catch(e){photoURL=''}
+  const p=$('attprev');p.hidden=false;
+  p.innerHTML=(photoURL?`<img alt="Фото задания" src="${photoURL}">`:'')+'<span style="flex:1">Фото задания прикреплено</span><button class="linkbtn" id="attx" type="button">Убрать</button>';
+  $('attx').onclick=clearPhoto;
+}
+function initAI(){
+  $('aisub').innerHTML=AI_SUBJECTS.map(s=>`<option>${s}</option>`).join('');
+  $('aigrade').innerHTML=Array.from({length:11},(_,i)=>`<option value="${i+1}">${i+1} класс</option>`).join('');
+  $('aisub').value=pref.subject;$('aigrade').value=String(pref.grade);
+  $('aisub').onchange=savePref;$('aigrade').onchange=savePref;
+  $('sendbtn').onclick=()=>{if(busy){ctl&&ctl.abort()}else send()};
+  $('aiq').addEventListener('input',autosize);
+  $('aiq').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+  $('aiclear').onclick=()=>{if(busy)return;msgs=[];saveMsgs();showErr('');renderMsgs()};
+  $('photoin').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;if(!/^image\//.test(f.type)){toast('Нужна картинка');return}setPhoto(f)};
+  updateAIState();
+  (async()=>{
+    try{if(window.claude&&window.claude.use){sample=await window.claude.use('sample');downloads=await window.claude.use('downloads')}}catch(e){sample=null}
+    if(sample){try{const caps=await sample.limits();if(caps&&caps.images){$('attbtn').hidden=false}}catch(e){}}
+    aiReady=true;updateAIState();
+  })();
+}
+
+/* ===== ПРАВИЛА И ФОРМУЛЫ (работают без интернета) ===== */
+const RULES_DB=[
+ {s:'Математика',topics:[
+  {t:'Среднее арифметическое',p:['Сложи все числа и раздели сумму на их количество.'],ex:'(4 + 12) : 2 = 8'},
+  {t:'Дроби: сложение и вычитание',p:['Одинаковые знаменатели: числители складываем или вычитаем, знаменатель остаётся.','Разные знаменатели: сначала приведи дроби к общему знаменателю (удобно взять НОК знаменателей), потом действуй как выше.'],ex:'2/7 + 3/7 = 5/7\n1/2 + 1/3 = 3/6 + 2/6 = 5/6'},
+  {t:'Дроби: умножение и деление',p:['Умножение: числитель на числитель, знаменатель на знаменатель.','Деление: умножь первую дробь на перевёрнутую вторую.'],ex:'2/3 · 4/5 = 8/15\n2/3 : 4/5 = 2/3 · 5/4 = 10/12 = 5/6'},
+  {t:'Проценты',p:['1% — это одна сотая часть числа, то есть 0,01.','Найти p% от числа: число · p / 100.','Найти число по его части: часть : p · 100.'],ex:'20% от 150 = 150 · 20 / 100 = 30\n30 — это 20% числа, значит число = 30 : 20 · 100 = 150'},
+  {t:'Признаки делимости',p:['На 2: последняя цифра чётная.','На 3: сумма цифр делится на 3.','На 5: число оканчивается на 0 или 5.','На 9: сумма цифр делится на 9.','На 10: число оканчивается на 0.'],ex:'432: 4 + 3 + 2 = 9, значит делится на 3 и на 9, и на 2.'},
+  {t:'НОД и НОК',p:['НОД — наибольшее число, на которое делятся оба числа.','НОК — наименьшее число, которое делится на оба числа.','Разложи числа на простые множители. НОД — общие множители, НОК — все множители, каждый по наибольшей степени.'],ex:'12 = 2·2·3, 18 = 2·3·3\nНОД(12; 18) = 2·3 = 6\nНОК(12; 18) = 2·2·3·3 = 36'},
+  {t:'Округление чисел',p:['Смотрим на первую отбрасываемую цифру. Если она 5 или больше, последняя оставшаяся цифра увеличивается на 1. Если меньше 5, остаётся как есть.'],ex:'4,0286 до десятых = 4,0\n3,76 до десятых = 3,8'},
+  {t:'Действия с отрицательными числами',p:['Числа с разными знаками складывают так: из большего модуля вычитают меньший, ставят знак числа с большим модулем.','Умножение и деление: одинаковые знаки дают плюс, разные дают минус.'],ex:'−5 + 3 = −2\n(−3) · (−4) = 12\n(−3) · 4 = −12'},
+  {t:'Периметр, площадь, объём',p:['Прямоугольник: P = 2(a + b), S = a · b.','Квадрат: P = 4a, S = a².','Прямоугольный параллелепипед: V = a · b · c.','Окружность и круг: C = 2πr, S = πr² (π ≈ 3,14).'],ex:'Прямоугольник 5 × 3: P = 16, S = 15'}
+ ]},
+ {s:'Алгебра',topics:[
+  {t:'Формулы сокращённого умножения',p:['(a + b)² = a² + 2ab + b²','(a − b)² = a² − 2ab + b²','a² − b² = (a − b)(a + b)','a³ + b³ = (a + b)(a² − ab + b²)','a³ − b³ = (a − b)(a² + ab + b²)'],ex:'(x + 3)² = x² + 6x + 9\n49 − y² = (7 − y)(7 + y)'},
+  {t:'Свойства степени',p:['aᵐ · aⁿ = aᵐ⁺ⁿ','aᵐ : aⁿ = aᵐ⁻ⁿ','(aᵐ)ⁿ = aᵐⁿ','(ab)ⁿ = aⁿ · bⁿ','a⁰ = 1 (если a ≠ 0), a¹ = a'],ex:'x³ · x⁴ = x⁷\n(2x)³ = 8x³'},
+  {t:'Линейное уравнение',p:['Уравнение ax = b. Если a ≠ 0, то x = b / a.','Слагаемые переносят в другую часть уравнения с противоположным знаком. Потом приводят подобные и делят на коэффициент при x.','Проверь ответ подстановкой в исходное уравнение.'],ex:'3x + 5 = 11\n3x = 11 − 5 = 6\nx = 2'},
+  {t:'Линейная функция y = kx + b',p:['Графиком является прямая. Для построения достаточно двух точек.','b — значение y при x = 0, то есть точка (0; b) на оси Oy.','Если k > 0, функция возрастает, если k < 0, убывает.','Прямые с одинаковым k параллельны.'],ex:'y = 2x − 1: при x = 0 получаем y = −1, при x = 1 получаем y = 1.'},
+  {t:'Разложение на множители',p:['Вынесение общего множителя за скобки.','Способ группировки.','Формулы сокращённого умножения.'],ex:'6x² + 9x = 3x(2x + 3)\nab + 2a + 3b + 6 = a(b + 2) + 3(b + 2) = (b + 2)(a + 3)'},
+  {t:'Система уравнений',p:['Способ подстановки: выражаем одну переменную и подставляем во второе уравнение.','Способ сложения: складываем уравнения так, чтобы одна переменная исчезла (при необходимости сначала умножаем уравнение на число).'],ex:'x + y = 5\nx − y = 1\nСложим: 2x = 6, x = 3, тогда y = 2.'}
+ ]},
+ {s:'Русский язык',topics:[
+  {t:'-тся и -ться в глаголах',p:['Задай вопрос к глаголу. «Что делать?» или «что сделать?» — пишем -ться (мягкий знак есть в вопросе).','«Что делает?» или «что сделает?» — пишем -тся (мягкого знака в вопросе нет).'],ex:'Он хочет учиться (что делать?).\nОна учится (что делает?).'},
+  {t:'Падежи и вопросы',p:['Именительный: кто? что?','Родительный: кого? чего?','Дательный: кому? чему?','Винительный: кого? что?','Творительный: кем? чем?','Предложный: о ком? о чём?'],ex:'Нет (кого? чего?) книги — родительный падеж.'},
+  {t:'Три склонения существительных',p:['1-е склонение: женский и мужской род на -а, -я (мама, дядя).','2-е склонение: мужской род с нулевым окончанием и средний род на -о, -е (стол, окно).','3-е склонение: женский род с нулевым окончанием, на мягкий знак (ночь, мышь).'],ex:'Ночь — 3-е склонение. Нож — 2-е склонение (мужской род, ь нет).'},
+  {t:'Мягкий знак после шипящих',p:['В существительных женского рода: ь пишется (ночь, рожь, мышь).','В существительных мужского рода: ь не пишется (нож, плащ, карандаш).','В глаголах во 2-м лице единственного числа: ь пишется (пишешь, читаешь).'],ex:'Ты учишь, он учит. Но: речь, мышь, и плащ, ключ.'},
+  {t:'Не с глаголами',p:['Обычно «не» с глаголами пишется раздельно: не читал, не знаю.','Слитно, если без «не» глагол не употребляется: ненавидеть, негодовать, недоумевать.'],ex:'Не знаю, но ненавижу.'},
+  {t:'Безударные гласные в корне',p:['Чтобы проверить безударную гласную, подбери однокоренное слово, где она под ударением.','Для проверки можно изменить форму слова.'],ex:'в?да — вода́ (вóды), поэтому «вода».'}
+ ]},
+ {s:'Английский язык',topics:[
+  {t:'Present Simple',p:['Для обычных, повторяющихся действий и фактов. Маркеры: always, usually, often, every day.','I / you / we / they work. He / she / it works.','Отрицание: don’t / doesn’t + глагол без окончания.','Вопрос: Do / Does + подлежащее + глагол.'],ex:'She works every day.\nDoes he play football? — Yes, he does.'},
+  {t:'Present Continuous',p:['Действие происходит прямо сейчас. Маркеры: now, at the moment.','Строится так: am / is / are + глагол с -ing.','Отрицание: am / is / are + not. Вопрос: am / is / are идёт перед подлежащим.'],ex:'I am reading now.\nAre they playing?'},
+  {t:'Past Simple',p:['Действие в прошлом. Маркеры: yesterday, last week, ago.','Правильные глаголы: добавляем -ed (work — worked). Неправильные: вторая форма из таблицы.','Отрицание: didn’t + глагол в начальной форме. Вопрос: Did + подлежащее + глагол в начальной форме.'],ex:'I watched TV yesterday.\nDid you go to school? — No, I didn’t.'},
+  {t:'Present Perfect',p:['Действие завершено, и важен результат сейчас. Маркеры: ever, never, already, just, yet.','Строится так: have / has + третья форма глагола.'],ex:'I have already done my homework.\nHas she ever been to London?'},
+  {t:'Будущее время',p:['will + глагол: решение в момент речи, предсказание.','be going to + глагол: заранее запланированное действие.'],ex:'I will help you.\nWe are going to visit our grandma.'},
+  {t:'Неправильные глаголы',p:['be — was / were — been','go — went — gone','see — saw — seen','take — took — taken','write — wrote — written','eat — ate — eaten','buy — bought — bought','have — had — had','make — made — made','know — knew — known','come — came — come'],ex:''},
+  {t:'Степени сравнения прилагательных',p:['Короткие: -er и the -est (tall — taller — the tallest).','Длинные: more и the most (interesting — more interesting — the most interesting).','Исключения: good — better — the best, bad — worse — the worst.'],ex:'My bag is bigger than yours. She is the most careful student.'},
+  {t:'Артикли a / an / the',p:['a — перед согласным звуком, an — перед гласным звуком (a book, an apple). Используем, когда предмет назван впервые или один из многих.','the — когда говорим о конкретном или уже известном предмете.'],ex:'I have a dog. The dog is big.'}
+ ]}];
+let rsub=0;
+function renderRules(){
+  const q=($('rsearch').value||'').toLowerCase().trim();
+  $('rschips').innerHTML=RULES_DB.map((x,i)=>`<button class="rschip ${i===rsub&&!q?'sel':''}" data-rs="${i}">${esc(x.s)}</button>`).join('');
+  const topics=q?RULES_DB.flatMap(x=>x.topics.filter(t=>(t.t+' '+t.p.join(' ')+' '+t.ex).toLowerCase().includes(q)).map(t=>Object.assign({},t,{s:x.s}))):RULES_DB[rsub].topics;
+  $('ruleslist').innerHTML=topics.length?topics.map(t=>`<details class="rule"><summary><span>${esc(t.t)}${q?` <span class="tiny">· ${esc(t.s)}</span>`:''}</span></summary><div class="rb">${t.p.map(l=>'<p>'+esc(l)+'</p>').join('')}${t.ex?'<div class="ex">'+esc(t.ex).replace(/\n/g,'<br>')+'</div>':''}</div></details>`).join(''):'<div class="empty">Ничего не найдено.<br>Попробуй другое слово.</div>';
+}
+$('rsearch').addEventListener('input',renderRules);
+$('hwadd').onclick=hwAdd;
+$('hwtext').addEventListener('keydown',e=>{if(e.key==='Enter')hwAdd()});
+$('gclear').onclick=()=>{grades=[];saveGr();renderGrades()};
+
+/* ===== ДНЕВНИК ДЗ (работает без интернета) ===== */
+const LS_HW='ogdz_hw_v1';
+let hw=lsGet(LS_HW,[]);if(!Array.isArray(hw))hw=[];
+hw=hw.filter(h=>h&&typeof h.id==='string'&&typeof h.text==='string'&&typeof h.date==='string');
+const HW_SUBJECTS=['Математика','Алгебра','Геометрия','Русский язык','Литература','Английский язык','Физика','Химия','Биология','География','История','Обществознание','Информатика','Другое'];
+const pad2=n=>String(n).padStart(2,'0');
+const isoDate=d=>d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+function addDays(n){const d=new Date();d.setDate(d.getDate()+n);return d}
+function parseISO(s){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s);return m?new Date(+m[1],+m[2]-1,+m[3]):null}
+function dayDiff(s){const d=parseISO(s);if(!d)return 999;const t=new Date();t.setHours(0,0,0,0);return Math.round((d-t)/86400000)}
+function saveHW(){if(!lsSet(LS_HW,hw))toast('Не удалось сохранить на устройстве')}
+function hwItem(h){
+  const d=parseISO(h.date);
+  const ds=d?d.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'long'}):h.date;
+  const over=!h.done&&dayDiff(h.date)<0;
+  return `<div class="hwitem ${h.done?'done':''} ${over?'over':''}"><button class="hwck" data-hwdone="${esc(h.id)}" aria-label="${h.done?'Вернуть в список':'Отметить выполненным'}"></button><div class="hwmain"><div class="hwt">${esc(h.text)}</div><div class="hws">${esc(h.sub)} · ${esc(ds)}</div></div><button class="hwdel" data-hwdel="${esc(h.id)}" aria-label="Удалить">×</button></div>`;
+}
+function renderDiary(){
+  if(!$('hwsub').options.length)$('hwsub').innerHTML=HW_SUBJECTS.map(s=>`<option>${s}</option>`).join('');
+  if(!$('hwdate').value)$('hwdate').value=isoDate(addDays(1));
+  const open=hw.filter(h=>!h.done).sort((a,b)=>a.date.localeCompare(b.date));
+  const done=hw.filter(h=>h.done).sort((a,b)=>b.date.localeCompare(a.date));
+  const over=open.filter(h=>dayDiff(h.date)<0).length;
+  $('hwsum').textContent=open.length?`Осталось сделать: ${open.length}${over?', просрочено: '+over:''}`:'Всё сделано. Новые задания добавляй ниже.';
+  const groups=[['over','Просрочено',x=>dayDiff(x.date)<0],['','Сегодня',x=>dayDiff(x.date)===0],['','Завтра',x=>dayDiff(x.date)===1],['','Позже',x=>dayDiff(x.date)>1]];
+  let html=groups.map(([c,t,f])=>{const items=open.filter(f);return items.length?`<div class="hwgroup"><div class="hwgl ${c}">${t} · ${items.length}</div><div class="hwlist">${items.map(hwItem).join('')}</div></div>`:''}).join('');
+  if(!open.length)html='<div class="empty">✎<br>Пока ничего не задано.<br>Запиши первое задание выше.</div>';
+  if(done.length)html+=`<details class="hwdone"><summary>Выполнено: ${done.length}</summary><div class="hwlist" style="margin-top:8px">${done.slice(0,30).map(hwItem).join('')}</div><div class="row"><button class="ghost" data-hwclear="1">Очистить выполненное</button></div></details>`;
+  const wasOpen=document.querySelector('details.hwdone[open]');
+  $('hwbody').innerHTML=html;
+  if(wasOpen){const d=document.querySelector('details.hwdone');if(d)d.open=true}
+}
+function hwAdd(){
+  const text=$('hwtext').value.trim();
+  if(!text){toast('Напиши, что задали');$('hwtext').focus();return}
+  const date=$('hwdate').value||isoDate(addDays(1));
+  hw.push({id:'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),sub:$('hwsub').value,text,date,done:false});
+  saveHW();$('hwtext').value='';renderDiary();toast('Добавлено в дневник');
+}
+
+/* ===== КАЛЬКУЛЯТОР ОЦЕНОК (работает без интернета) ===== */
+const LS_GR='ogdz_grades_v1';
+let grades=lsGet(LS_GR,[]);if(!Array.isArray(grades))grades=[];
+grades=grades.filter(g=>g===2||g===3||g===4||g===5);
+let gtarget=5;
+const pl=(n,f)=>{const a=Math.abs(n)%100,b=a%10;return a>10&&a<20?f[2]:b>1&&b<5?f[1]:b===1?f[0]:f[2]};
+const num2=x=>x.toFixed(2).replace('.',',');
+function saveGr(){lsSet(LS_GR,grades)}
+function renderGrades(){
+  document.querySelectorAll('[data-gt]').forEach(b=>b.classList.toggle('sel',+b.dataset.gt===gtarget));
+  $('glist').innerHTML=grades.length?grades.map((g,i)=>`<button class="chip" data-grm="${i}" aria-label="Убрать оценку ${g}">${g} ×</button>`).join(''):'<span class="muted">Оценок пока нет.</span>';
+  const c=grades.length,s=grades.reduce((a,b)=>a+b,0);
+  if(!c){$('gres').innerHTML='<div class="gline">Добавь хотя бы одну оценку.</div>';return}
+  const avg=s/c,sch=avg>=4.5?5:avg>=3.5?4:avg>=2.5?3:2;
+  let out=`<div class="label" style="margin-top:0">Средний балл</div><div class="gbig">${num2(avg)}</div><div class="gline">Оценок: ${c}. По обычному округлению выходит <b>${sch}</b>.</div>`;
+  if(gtarget===5){
+    const n=9*c-2*s;
+    out+=n<=0?'<div class="gline">Для «5» уже достаточно: средний балл не меньше 4,5.</div>':`<div class="gline">Чтобы вышла «5», нужно получить подряд ещё <b>${n} ${pl(n,['пятёрку','пятёрки','пятёрок'])}</b>. Четвёрками до «5» не дотянуть.</div>`;
+  }else{
+    const t=7*c-2*s;
+    if(t<=0)out+='<div class="gline">Для «4» уже достаточно: средний балл не меньше 3,5.</div>';
+    else{const n5=Math.ceil(t/3);out+=`<div class="gline">Чтобы вышла «4», нужно получить подряд ещё <b>${n5} ${pl(n5,['пятёрку','пятёрки','пятёрок'])}</b> или <b>${t} ${pl(t,['четвёрку','четвёрки','четвёрок'])}</b>.</div>`}
+  }
+  out+='<div class="tiny" style="line-height:1.5;margin-top:8px">Это расчёт по обычному округлению (4,5 и выше даёт «5», 3,5 и выше даёт «4»). Учитель может считать иначе или учитывать вес работ, уточни у него.</div>';
+  $('gres').innerHTML=out;
+}
+
+/* ===== ТРЕНАЖЁР (работает без интернета) ===== */
+const TR_MODES=[
+ {id:'calc',name:'Устный счёт',desc:'Сложение, проценты, уравнения, отрицательные числа, НОД и НОК',icon:'∑',task:'Реши устно'},
+ {id:'verbs',name:'Неправильные глаголы',desc:'Английский: вставь пропущенную форму',icon:'Aa',task:'Вставь пропущенную форму глагола'},
+ {id:'tsya',name:'-тся или -ться',desc:'Русский: выбери правильное окончание глагола',icon:'АЯ',task:'Выбери окончание'}];
+const LS_BEST='ogdz_best_v1';
+let best=lsGet(LS_BEST,{});if(!best||typeof best!=='object'||Array.isArray(best))best={};
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[rnd(0,a.length-1)];
+const dn=n=>String(n).replace('-','−');
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+function shuffle(a){const r=a.slice();for(let i=r.length-1;i>0;i--){const j=rnd(0,i);[r[i],r[j]]=[r[j],r[i]]}return r}
+const VERBS=[['go','went','gone'],['see','saw','seen'],['take','took','taken'],['write','wrote','written'],['eat','ate','eaten'],['buy','bought','bought'],['have','had','had'],['make','made','made'],['know','knew','known'],['come','came','come'],['give','gave','given'],['begin','began','begun'],['drink','drank','drunk'],['swim','swam','swum'],['run','ran','run'],['sing','sang','sung'],['speak','spoke','spoken'],['break','broke','broken'],['choose','chose','chosen'],['forget','forgot','forgotten'],['find','found','found'],['bring','brought','brought'],['think','thought','thought'],['teach','taught','taught'],['do','did','done'],['say','said','said'],['tell','told','told'],['meet','met','met'],['sleep','slept','slept'],['drive','drove','driven'],['fly','flew','flown'],['wear','wore','worn']];
+const TSYA=[['Хочу научи','ться',' плавать.'],['Брат умеет хорошо учи','ться','.'],['Миша учи','тся',' в пятом классе.'],['Ребята собираю','тся',' в поход.'],['Пора возвраща','ться',' домой.'],['Дети радую','тся',' первому снегу.'],['Надо стара','ться',' каждый день.'],['Птицы возвращаю','тся',' весной.'],['Урок начинае','тся',' в девять часов.'],['Мы любим смея','ться','.'],['Он любит купа','ться',' в реке.']];
+const PAIRS=[[12,18],[8,12],[15,20],[18,24],[14,21],[16,24],[9,15],[10,25],[20,30],[12,16]];
+const CALC=[
+ ()=>{const a=rnd(12,98),b=rnd(12,98);return{q:`${a} + ${b} = ?`,a:a+b}},
+ ()=>{const a=rnd(30,99),b=rnd(11,a-1);return{q:`${a} − ${b} = ?`,a:a-b}},
+ ()=>{const a=rnd(3,12),b=rnd(3,12);return{q:`${a} · ${b} = ?`,a:a*b}},
+ ()=>{let n,p;do{n=pick([20,40,60,80,100,120,150,200,240,300]);p=pick([5,10,20,25,30,40,50,75])}while((n*p)%100);return{q:`Сколько составляют ${p}% от числа ${n}?`,a:n*p/100}},
+ ()=>{const x=rnd(-9,12),a=rnd(2,9),b=rnd(1,15)*(Math.random()<.5?-1:1),c=a*x+b;return{q:`${a}x ${b<0?'−':'+'} ${Math.abs(b)} = ${dn(c)}. Чему равен x?`,a:x}},
+ ()=>{let a,b;do{a=rnd(-15,15);b=rnd(-15,15)}while(!a||!b);return{q:`(${dn(a)}) + (${dn(b)}) = ?`,a:a+b}},
+ ()=>{const a=rnd(-9,9)||2,b=rnd(-9,9)||3;return{q:`(${dn(a)}) · (${dn(b)}) = ?`,a:a*b}},
+ ()=>{const n=pick([3,4,5]),avg=rnd(8,30);let nums,last;do{nums=[];let s=0;for(let i=0;i<n-1;i++){const v=rnd(avg-4,avg+4);nums.push(v);s+=v}last=avg*n-s}while(last<1);nums.push(last);return{q:`Найди среднее арифметическое: ${nums.join('; ')}`,a:avg}},
+ ()=>{const [a,b]=pick(PAIRS);return Math.random()<.5?{q:`НОД(${a}; ${b}) = ?`,a:gcd(a,b)}:{q:`НОК(${a}; ${b}) = ?`,a:a*b/gcd(a,b)}}
+];
+function makeItems(mode){
+  if(mode==='calc')return Array.from({length:10},()=>Object.assign({type:'text'},pick(CALC)()));
+  if(mode==='verbs')return shuffle(VERBS).slice(0,10).map(v=>{const k=rnd(1,2),parts=v.slice(),ans=parts[k];parts[k]='___';return{type:'text',q:parts.join(' — '),a:ans,hint:'Три формы: '+v.join(' — ')}});
+  return shuffle(TSYA).slice(0,10).map(x=>({type:'choice',q:x[0]+'___'+x[2],a:x[1],full:x[0]+x[1]+x[2],hint:'Задай вопрос: «что делать?» — пишем -ться, «что делает?» — пишем -тся.'}));
+}
+const normAns=s=>String(s).trim().toLowerCase().replace(/\s+/g,'').replace(',','.').replace(/[−–—]/g,'-');
+let tr=null;
+function renderTrainer(){
+  const box=$('trbody');
+  if(!tr){
+    box.innerHTML='<div class="books" style="margin-top:16px">'+TR_MODES.map(m=>`<button class="book" data-trmode="${m.id}"><span class="bookico">${m.icon}</span><span style="flex:1"><strong>${esc(m.name)}</strong><small>${esc(m.desc)}<br>${best[m.id]!=null?'Рекорд: '+best[m.id]+' из 10':'Рекорда пока нет'}</small></span><span class="arrow">›</span></button>`).join('')+'</div>';
+    return;
+  }
+  const m=TR_MODES.find(x=>x.id===tr.mode);
+  if(tr.state==='end'){
+    const msg=tr.score>=9?'Отлично!':tr.score>=6?'Хорошо, но есть что повторить.':'Потренируйся ещё и загляни в «Правила и формулы».';
+    box.innerHTML=`<div class="result"><div class="label" style="margin-top:0">${esc(m.name)}</div><div class="trscore">${tr.score} из 10</div><div class="trnote"><b>${msg}</b>${tr.record?'<br>Новый рекорд!':'<br>Рекорд: '+(best[tr.mode]!=null?best[tr.mode]:0)+' из 10'}</div></div><div class="row"><button class="ghost" data-tr="again">Ещё раз</button><button class="ghost" data-tr="modes">К режимам</button></div>`;
+    return;
+  }
+  const it=tr.items[tr.i];
+  const head=`<div class="trhead"><span>Вопрос ${tr.i+1} из 10</span><span>Верно: ${tr.score}</span></div><div class="bar"><i style="width:${(tr.i+(tr.state==='fb'?1:0))*10}%"></i></div>`;
+  if(tr.state==='q'){
+    const inp=it.type==='choice'
+      ?'<div class="tropts"><button class="tropt" data-trc="тся">-тся</button><button class="tropt" data-trc="ться">-ться</button></div>'
+      :'<input class="field" id="trin" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Твой ответ" placeholder="Твой ответ"><button class="primary" data-tr="check">Проверить</button>';
+    box.innerHTML=head+`<div class="result"><div class="label" style="margin-top:0">${esc(m.task)}</div><div class="trq">${esc(it.q)}</div>${inp}</div><button class="linkbtn" data-tr="modes">← Выйти из раунда</button>`;
+    const f=$('trin');if(f){f.focus();f.addEventListener('keydown',e=>{if(e.key==='Enter')trAnswer(f.value)})}
+  }else{
+    const ok=tr.last.ok;
+    const right=it.type==='choice'?it.full:'Правильный ответ: '+dn(it.a);
+    box.innerHTML=head+`<div class="result"><span class="badge ${ok?'ok':'bad'}">${ok?'ВЕРНО':'НЕВЕРНО'}</span><div class="trq" style="font-size:18px">${esc(right)}</div>${ok?'':`<div class="trnote">Твой ответ: ${esc(tr.last.given)}</div>`}${!ok&&it.hint?`<div class="trnote">${esc(it.hint)}</div>`:''}<button class="primary" id="trnext" data-tr="next">${tr.i>=9?'Результат':'Дальше'}</button></div>`;
+    const nb=$('trnext');if(nb)nb.focus();
+  }
+}
+function trAnswer(val){
+  if(!tr||tr.state!=='q')return;
+  const it=tr.items[tr.i];
+  if(it.type==='text'&&!String(val).trim()){toast('Введи ответ');return}
+  const ok=sameAns(it,val);
+  if(ok)tr.score++;
+  tr.last={ok,given:String(val).trim()};tr.state='fb';renderTrainer();
+}
+function trNext(){
+  if(tr.i>=9){
+    tr.state='end';tr.record=tr.score>(best[tr.mode]!=null?best[tr.mode]:-1);
+    if(tr.record){best[tr.mode]=tr.score;lsSet(LS_BEST,best)}
+  }else{tr.i++;tr.state='q'}
+  renderTrainer();
+}
+$('trbody').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.trmode){tr={mode:b.dataset.trmode,items:makeItems(b.dataset.trmode),i:0,score:0,state:'q'};return renderTrainer()}
+  if(b.dataset.trc)return trAnswer(b.dataset.trc);
+  const a=b.dataset.tr;
+  if(a==='check')return trAnswer(($('trin')||{}).value||'');
+  if(a==='next')return trNext();
+  if(a==='again'){tr={mode:tr.mode,items:makeItems(tr.mode),i:0,score:0,state:'q'};return renderTrainer()}
+  if(a==='modes'){tr=null;return renderTrainer()}
+});
+
+/* ===== КОНТРОЛЬНАЯ (работает без интернета) ===== */
+const LS_EXAM='ogdz_exams_v1';
+let examHist=lsGet(LS_EXAM,[]);if(!Array.isArray(examHist))examHist=[];
+examHist=examHist.filter(h=>h&&typeof h.t==='number'&&typeof h.score==='number'&&typeof h.n==='number');
+let examCfg={subj:'Математика',n:10,timer:true};
+let exm=null,exTimer=null;
+const EX_SUBJ=['Математика','Английский','Русский','Смешанная'];
+function sameAns(it,val){
+  if(it.type==='choice')return val===it.a;
+  const x=normAns(val),y=normAns(String(it.a));
+  if(!x)return false;
+  if(/^-?\d+(\.\d+)?$/.test(x)&&/^-?\d+(\.\d+)?$/.test(y))return Number(x)===Number(y);
+  return x===y;
+}
+function showAns(it){
+  const a=String(it.a);
+  if(it.type==='choice')return a;
+  return /^-?\d+\.\d+$/.test(a)?a.replace('.',','):dn(a);
+}
+const MATH_EXTRA=[
+ ()=>{const a=rnd(2,9),b=rnd(2,9),c=rnd(2,9);return Math.random()<.5?{q:`${a} + ${b} · ${c} = ?`,a:a+b*c}:{q:`(${a} + ${b}) · ${c} = ?`,a:(a+b)*c}},
+ ()=>{const a=rnd(11,60),b=rnd(2,9),c=rnd(2,9),r=a-b*c;return r>0?{q:`${a} − ${b} · ${c} = ?`,a:r}:{q:`${a} + ${b} · ${c} = ?`,a:a+b*c}},
+ ()=>{const a=rnd(3,15),b=rnd(3,15);return Math.random()<.5?{q:`Найди периметр прямоугольника со сторонами ${a} см и ${b} см (в см).`,a:2*(a+b)}:{q:`Найди площадь прямоугольника со сторонами ${a} см и ${b} см (в см²).`,a:a*b}},
+ ()=>{const a=rnd(2,9),n=pick([2,3]);return{q:`${a}${n===2?'²':'³'} = ?`,a:Math.pow(a,n)}},
+ ()=>{const k=rnd(2,15);return{q:`√${k*k} = ?`,a:k}},
+ ()=>{const x=rnd(10,99),y=rnd(10,99);return{q:`${(x/10).toFixed(1).replace('.',',')} + ${(y/10).toFixed(1).replace('.',',')} = ?`,a:((x+y)/10).toFixed(1)}},
+ ()=>{const p=pick([[1,2],[1,3],[2,3],[3,4],[2,5],[3,5],[5,6],[4,7]]),k=rnd(2,6);return{q:`Сократи дробь ${p[0]*k}/${p[1]*k}. Запиши ответ дробью, например 2/3.`,a:p[0]+'/'+p[1]}},
+ ()=>{const a=rnd(2,9),b=rnd(1,9),x=rnd(2,9);return{q:`Найди значение выражения ${a}a + ${b} при a = ${x}.`,a:a*x+b}}
+];
+const EN_Q=[
+ ['She ___ to school every day.',['go','goes','going'],'goes'],
+ ['They ___ football now.',['play','plays','are playing'],'are playing'],
+ ['I ___ my homework yesterday.',['do','did','done'],'did'],
+ ['He ___ never been to London.',['have','has','had'],'has'],
+ ['This book is ___ than that one.',['interesting','more interesting','most interesting'],'more interesting'],
+ ['She is ___ girl in our class.',['taller','the tallest','tallest'],'the tallest'],
+ ['We ___ visit our grandma tomorrow.',['are going to','went','visited'],'are going to'],
+ ['I have ___ apple.',['a','an','the'],'an'],
+ ['___ you like pizza?',['Do','Does','Are'],'Do'],
+ ['My brother ___ TV at the moment.',['watches','is watching','watched'],'is watching'],
+ ['Last summer we ___ to the sea.',['go','went','gone'],'went'],
+ ['There ___ a lot of snow in winter.',['is','are','be'],'is'],
+ ['She can ___ very well.',['swims','swim','swimming'],'swim'],
+ ['What time ___ the film start?',['do','does','is'],'does'],
+ ['He ___ his key yesterday.',['loses','lost','lose'],'lost']
+];
+const RU_VOW=[['тр_ва','а','о','а','тра́вы'],['в_да','а','о','о','во́ды'],['з_мля','е','и','е','зе́мли'],['гр_за','а','о','о','гро́зы'],['с_ды','а','о','а','сад'],['л_сной','е','и','е','лес']];
+const RU_CASE=[['маме','Я дарю цветы маме.','Дательный'],['учителя','В классе нет учителя.','Родительный'],['книге','Мы говорим о книге.','Предложный'],['ручкой','Он пишет ручкой.','Творительный'],['море','Я вижу море.','Винительный'],['мама','Мама пришла домой.','Именительный']];
+const RU_DECL=[['ночь','3-е склонение'],['стол','2-е склонение'],['мама','1-е склонение'],['окно','2-е склонение'],['земля','1-е склонение'],['мышь','3-е склонение']];
+const RU_NE=[['(не)читал','раздельно'],['(не)навидеть','слитно'],['(не)знаю','раздельно'],['(не)годовать','слитно']];
+const RU_SOFT=[['ноч_','нужен'],['нож_','не нужен'],['мыш_','нужен'],['плащ_','не нужен'],['реч_','нужен'],['мяч_','не нужен'],['рож_','нужен']];
+function mkChoice(subj,q,opts,a,hint){return{type:'choice',subj,task:'Выбери верный ответ',q,opts,a,hint:hint||''}}
+function mathItems(n){
+  const gens=shuffle(CALC.concat(MATH_EXTRA)),out=[],seen=new Set();
+  for(let k=0;out.length<n&&k<n*12;k++){
+    const g=k<gens.length?gens[k]:pick(gens),r=g();
+    if(seen.has(r.q))continue;seen.add(r.q);
+    out.push(Object.assign({type:'text',subj:'Математика',task:'Реши'},r));
+  }
+  return out;
+}
+function enItems(n){
+  const nv=Math.min(Math.round(n*.4),VERBS.length),nc=Math.min(n-nv,EN_Q.length);
+  const verbs=shuffle(VERBS).slice(0,n-nc).map(v=>{const k=rnd(1,2),parts=v.slice(),ans=parts[k];parts[k]='___';return{type:'text',subj:'Английский',task:'Вставь пропущенную форму глагола',q:parts.join(' — '),a:ans,hint:'Три формы: '+v.join(' — ')}});
+  const ch=shuffle(EN_Q).slice(0,nc).map(x=>mkChoice('Английский',x[0],x[1],x[2]));
+  return shuffle(verbs.concat(ch)).slice(0,n);
+}
+function ruItems(n){
+  const CASES=['Именительный','Родительный','Дательный','Винительный','Творительный','Предложный'];
+  const pool=[]
+   .concat(TSYA.map(x=>mkChoice('Русский',x[0]+'___'+x[2],['-тся','-ться'],'-'+x[1],'Задай вопрос: «что делать?» — пишем -ться, «что делает?» — пишем -тся.')))
+   .concat(RU_VOW.map(x=>mkChoice('Русский','Вставь пропущенную букву: '+x[0],[x[1],x[2]],x[3],'Проверочное слово: '+x[4])))
+   .concat(RU_CASE.map(x=>mkChoice('Русский',`Определи падеж слова «${x[0]}»: ${x[1]}`,CASES,x[2])))
+   .concat(RU_DECL.map(x=>mkChoice('Русский',`К какому склонению относится слово «${x[0]}»?`,['1-е склонение','2-е склонение','3-е склонение'],x[1])))
+   .concat(RU_NE.map(x=>mkChoice('Русский',`Как пишется «не» с глаголом: «${x[0]}»?`,['слитно','раздельно'],x[1])))
+   .concat(RU_SOFT.map(x=>mkChoice('Русский',`Нужен ли мягкий знак на конце слова «${x[0]}»?`,['нужен','не нужен'],x[1])));
+  return shuffle(pool).slice(0,n);
+}
+function examItems(subj,n){
+  if(subj==='Математика')return mathItems(n);
+  if(subj==='Английский')return enItems(n);
+  if(subj==='Русский')return ruItems(n);
+  const a=Math.floor(n/3),r=n-a*3;
+  return mathItems(a+(r>0?1:0)).concat(enItems(a+(r>1?1:0)),ruItems(a));
+}
+const fmtT=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+':'+pad2(s%60)};
+function exStart(items,redo){
+  clearInterval(exTimer);
+  exm={items,i:0,ans:new Array(items.length).fill(null),state:'run',t0:Date.now(),redo:!!redo,endAt:examCfg.timer?Date.now()+items.length*60000:0};
+  if(exm.endAt)exTimer=setInterval(()=>{
+    if(!exm||exm.state!=='run'){clearInterval(exTimer);return}
+    const left=exm.endAt-Date.now();
+    if(left<=0){exFinish(true);return}
+    const t=$('extime');if(t){t.textContent=fmtT(left);t.classList.toggle('low',left<60000)}
+  },1000);
+  renderExam();
+}
+function exAnswer(val){
+  if(!exm||exm.state!=='run')return;
+  const it=exm.items[exm.i];
+  if(it.type==='text'&&val!==null&&!String(val).trim()){toast('Введи ответ или нажми «Пропустить»');return}
+  exm.ans[exm.i]=val===null?null:String(val).trim();
+  if(exm.i>=exm.items.length-1)exFinish(false);else{exm.i++;renderExam()}
+}
+function exFinish(timeUp){
+  if(!exm||exm.state!=='run')return;
+  clearInterval(exTimer);
+  const secs=Math.round((Date.now()-exm.t0)/1000);let score=0;const wrong=[];
+  exm.items.forEach((it,k)=>{const a=exm.ans[k];if(a!==null&&sameAns(it,a))score++;else wrong.push({it,given:a})});
+  const n=exm.items.length,pct=Math.round(score/n*100),grade=pct>=90?5:pct>=70?4:pct>=50?3:2;
+  Object.assign(exm,{state:'result',score,n,pct,grade,secs,wrong,timeUp:!!timeUp});
+  if(!exm.redo){examHist.unshift({t:Date.now(),subj:examCfg.subj,n,score,grade,secs});examHist=examHist.slice(0,10);lsSet(LS_EXAM,examHist)}
+  renderExam();
+}
+function renderExam(){
+  const box=$('exbody');
+  if(!exm){
+    const chip=(attr,val,label,on)=>`<button class="rschip ${on?'sel':''}" ${attr}="${val}">${label}</button>`;
+    const hist=examHist.length?`<div class="label">Последние работы</div><div class="hwlist">${examHist.slice(0,5).map(h=>{const d=new Date(h.t),m=Math.floor(h.secs/60);return `<div class="hwitem"><span class="exg g${h.grade}">${h.grade}</span><div class="hwmain"><div class="hwt">${esc(h.subj)}</div><div class="hws">${esc(d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'}))} · ${h.score} из ${h.n} · ${m} мин ${pad2(h.secs%60)} с</div></div></div>`}).join('')}</div>`:'';
+    box.innerHTML=`<p class="muted" style="margin:8px 0 0">Как на настоящей работе: подсказок и проверки по ходу нет. Оценка и разбор ошибок появятся в конце.</p>
+    <div class="label">Предмет</div><div class="rschips" style="margin:0">${EX_SUBJ.map(x=>chip('data-exs',x,x,examCfg.subj===x)).join('')}</div>
+    <div class="label">Вопросов</div><div class="rschips" style="margin:0">${[10,15,20].map(x=>chip('data-exn',x,x,examCfg.n===x)).join('')}</div>
+    <div class="label">Время</div><div class="rschips" style="margin:0">${chip('data-ext','1','1 минута на вопрос',examCfg.timer)}${chip('data-ext','0','Без таймера',!examCfg.timer)}</div>
+    <button class="primary" data-ex="start">Начать контрольную</button>${hist}`;
+    return;
+  }
+  if(exm.state==='result'){
+    const msg=exm.timeUp?'Время вышло. Неотвеченные вопросы засчитаны как ошибки.':exm.grade===5?'Отличная работа!':exm.grade===4?'Хороший результат, есть что подтянуть.':exm.grade===3?'Удовлетворительно. Разбери ошибки ниже.':'Нужно повторить тему. Загляни в «Правила и формулы» и разбери ошибки.';
+    const m=Math.floor(exm.secs/60);
+    const wrong=exm.wrong.length?`<div class="label">Разбор ошибок · ${exm.wrong.length}</div><div class="result" style="margin-top:0;padding-top:4px;padding-bottom:4px">${exm.wrong.map(w=>`<div class="exwrong"><div class="hwt">${esc((w.it.subj&&examCfg.subj==='Смешанная'?w.it.subj+': ':'')+w.it.q)}</div><div class="hws" style="font-size:12px;line-height:1.5">Твой ответ: ${w.given?esc(w.given):'нет ответа'}<br>Верно: <b style="color:#b6f36b">${esc(showAns(w.it))}</b>${w.it.hint?'<br>'+esc(w.it.hint):''}</div></div>`).join('')}</div>`:'<div class="result"><b>Ошибок нет.</b></div>';
+    box.innerHTML=`<div class="result"><div class="exres"><div class="exg exgrade g${exm.grade}">${exm.grade}</div><div><div class="trscore" style="margin:0">${exm.score} из ${exm.n}</div><div class="tiny">${exm.pct}% · ${m} мин ${pad2(exm.secs%60)} с</div></div></div><div class="trnote">${esc(msg)}</div><div class="tiny" style="line-height:1.5;margin-top:10px">Шкала примерная: от 90% — «5», от 70% — «4», от 50% — «3». У учителя она может отличаться.</div></div>
+    ${wrong}<div class="row">${exm.wrong.length?'<button class="ghost" data-ex="redo">Повторить ошибки</button>':''}<button class="ghost" data-ex="again">Новая контрольная</button></div>`;
+    return;
+  }
+  const it=exm.items[exm.i],last=exm.i>=exm.items.length-1;
+  const head=`<div class="trhead"><span>Вопрос ${exm.i+1} из ${exm.items.length}</span>${exm.endAt?`<span class="extimer ${exm.endAt-Date.now()<60000?'low':''}" id="extime">${fmtT(exm.endAt-Date.now())}</span>`:''}</div><div class="bar"><i style="width:${exm.i/exm.items.length*100}%"></i></div>`;
+  const tag=examCfg.subj==='Смешанная'?it.subj+' · ':'';
+  let body;
+  if(it.type==='choice'){
+    const one=it.opts.some(o=>o.length>16)||it.opts.length===3&&it.opts.some(o=>o.length>10);
+    body=`<div class="exopts ${one?'one':''}">${it.opts.map((o,k)=>`<button class="exopt" data-exc="${k}">${esc(o)}</button>`).join('')}</div>`;
+  }else{
+    body='<input class="field" id="exin" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Твой ответ" placeholder="Твой ответ"><div class="row"><button class="ghost" data-ex="skip">Пропустить</button><button class="primary" style="margin-top:0;flex:2" data-ex="ok">'+(last?'Ответить и закончить':'Ответить')+'</button></div>';
+  }
+  box.innerHTML=head+`<div class="result"><div class="label" style="margin-top:0">${esc(tag+it.task)}</div><div class="trq">${esc(it.q)}</div>${body}</div>${it.type==='choice'?'<div class="row"><button class="ghost" data-ex="skip">Пропустить</button></div>':''}<div class="row" style="margin-top:14px"><button class="linkbtn" data-ex="finish">Завершить досрочно</button><button class="linkbtn" data-ex="quit">Выйти без результата</button></div>`;
+  const f=$('exin');if(f){f.focus();f.addEventListener('keydown',e=>{if(e.key==='Enter')exAnswer(f.value)})}
+}
+let exArm='';
+$('exbody').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const d=b.dataset;
+  if(d.exs){examCfg.subj=d.exs;return renderExam()}
+  if(d.exn){examCfg.n=+d.exn;return renderExam()}
+  if(d.ext!==undefined){examCfg.timer=d.ext==='1';return renderExam()}
+  if(d.exc!==undefined){const it=exm.items[exm.i];return exAnswer(it.opts[+d.exc])}
+  const a=d.ex;if(!a)return;
+  if(a==='start')return exStart(examItems(examCfg.subj,examCfg.n),false);
+  if(a==='ok')return exAnswer(($('exin')||{}).value||'');
+  if(a==='skip')return exAnswer(null);
+  if(a==='redo'){const items=exm.wrong.map(w=>w.it);return exStart(items,true)}
+  if(a==='again'){clearInterval(exTimer);exm=null;return renderExam()}
+  if(a==='finish'||a==='quit'){
+    if(exArm!==a){exArm=a;b.textContent='Нажми ещё раз';setTimeout(()=>{if(exArm===a){exArm='';if(b.isConnected)b.textContent=a==='finish'?'Завершить досрочно':'Выйти без результата'}},3000);return}
+    exArm='';
+    if(a==='finish')return exFinish(false);
+    clearInterval(exTimer);exm=null;renderExam();
+  }
+});
+
+/* ===== ДРУГИЕ НЕЙРОСЕТИ: копируем вопрос и открываем сайт ===== */
+function otherPrompt(){
+  let q=$('aiq').value.trim();
+  if(!q){const l=[...msgs].reverse().find(m=>m.role==='user');q=l?l.text:''}
+  if(!q)return '';
+  return `Я школьник, ${$('aigrade').value} класс, предмет: ${$('aisub').value}. Объясни по шагам и простыми словами:\n\n${q}`;
+}
+document.querySelectorAll('.otherai').forEach(a=>a.addEventListener('click',e=>{
+  const t=otherPrompt();
+  if(!t){e.preventDefault();toast('Сначала напиши вопрос в поле внизу');return}
+  try{navigator.clipboard.writeText(t).then(()=>toast('Вопрос скопирован. Вставь его в чат'),()=>toast('Не скопировалось, скопируй вопрос из поля внизу'))}
+  catch(err){toast('Не скопировалось, скопируй вопрос из поля внизу')}
+}));
+
+/* ===== СОБЫТИЯ ===== */
+document.addEventListener('click',ev=>{
+  const t=ev.target.closest('button');if(!t)return;
+  if(t.dataset.go)return go(t.dataset.go);
+  if(t.dataset.tab)return tab(t.dataset.tab);
+  if(t.dataset.subject!==undefined)return openSubject(+t.dataset.subject);
+  if(t.dataset.book)return chooseBook(t.dataset.book);
+  if(t.dataset.num){$('exercise').value=t.dataset.num;return openTask(t.dataset.num)}
+  if(t.dataset.fb){curBook=t.dataset.fb;curSubject=SUBJECTS.find(s=>s.name===bookById[curBook].subject);return openTask(t.dataset.fn)}
+  if(t.dataset.hwd!==undefined){$('hwdate').value=isoDate(addDays(+t.dataset.hwd));return}
+  if(t.dataset.hwdone){const h=hw.find(x=>x.id===t.dataset.hwdone);if(h){h.done=!h.done;saveHW();renderDiary()}return}
+  if(t.dataset.hwdel){hw=hw.filter(x=>x.id!==t.dataset.hwdel);saveHW();renderDiary();return}
+  if(t.dataset.hwclear){hw=hw.filter(x=>!x.done);saveHW();renderDiary();return}
+  if(t.dataset.gadd){grades.push(+t.dataset.gadd);saveGr();renderGrades();return}
+  if(t.dataset.grm!==undefined){grades.splice(+t.dataset.grm,1);saveGr();renderGrades();return}
+  if(t.dataset.gt){gtarget=+t.dataset.gt;renderGrades();return}
+  if(t.dataset.rs!==undefined){rsub=+t.dataset.rs;$('rsearch').value='';return renderRules()}
+  if(t.dataset.st!==undefined){const x=STARTERS[+t.dataset.st];$('aisub').value=x.s;$('aigrade').value=x.g;savePref();$('aiq').value=x.q;autosize();if(!$('aiq').disabled)$('aiq').focus();return}
+});
+$('findbtn').onclick=()=>openTask($('exercise').value);
+$('exercise').addEventListener('keydown',e=>{if(e.key==='Enter')openTask($('exercise').value)});
+$('solback').onclick=()=>go('catalog');
+$('favbtn').onclick=toggleFav;$('nextbtn').onclick=nextNum;$('askbtn').onclick=askAboutTask;
+$('search').addEventListener('input',e=>{const q=e.target.value.toLowerCase().trim();document.querySelectorAll('.subject').forEach(c=>c.style.display=c.dataset.hay.includes(q)?'':'none')});
+$('tplbtn').onclick=()=>{$('importbox').value=JSON.stringify(TEMPLATE,null,2)};
+$('filebtn').onclick=()=>$('filein').click();
+$('filein').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('importbox').value=r.result};r.readAsText(f);e.target.value=''};
+$('importbtn').onclick=()=>{
+  const txt=$('importbox').value.trim();if(!txt){toast('Вставь JSON');return}
+  const r=importJSON(txt);
+  $('importmsg').innerHTML='Добавлено: <b>'+r.added+'</b>'+(r.errors.length?'<br>Пропущено:<br>'+r.errors.slice(0,8).map(esc).join('<br>')+(r.errors.length>8?'<br>…и ещё '+(r.errors.length-8):''):'');
+  if(r.added){renderHome();renderStats();toast('Добавлено решений: '+r.added)}
+};
+$('exportbtn').onclick=saveBase;
+let resetArmed=false,resetT;
+$('resetbtn').onclick=()=>{
+  if(!resetArmed){resetArmed=true;$('resetbtn').textContent='Нажми ещё раз для удаления';clearTimeout(resetT);resetT=setTimeout(()=>{resetArmed=false;$('resetbtn').textContent='Удалить добавленное'},3500);return}
+  resetArmed=false;clearTimeout(resetT);$('resetbtn').textContent='Удалить добавленное';
+  userTasks={};lsSet(LS_TASKS,userTasks);renderHome();renderStats();toast('Добавленное удалено');
+};
+
+renderHome();renderStats();initAI();renderMsgs();
+</script>
